@@ -1,0 +1,94 @@
+CREATE TABLE recipe (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    description TEXT,
+    author_id SERIAL REFERENCES author(id),
+    category_id SERIAL REFERENCES category(id),
+    dificulty_id SERIAL REFERENCES dificulty(id),
+    rating INT DEFAULT 0 CHECK (rating>=0 AND rating <=10),
+    preparation_time INT CHECK (preparation_time>0),
+    serving INT CHECK (serving>0),
+    ingredients TEXT,
+    steps TEXT,
+    published_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    access_count INT DEFAULT 0 CHECK (access_count>=0),
+    image TEXT
+);
+
+ALTER TABLE recipe
+ADD image TEXT;
+
+select published_date, now() - published_date as diff from recipe ;
+
+INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image) 
+VALUES (
+    'Brigadeiro',
+    'O brigadeiro é um doce genuinamente brasileiro. Um orgulho só! 
+        Essa delícia de chocolate faz a alegria da criançada e de muita gente grande em qualquer circunstância.',
+    3, 10, 1, 25, 30,
+    '1 caixa de leite condensado, 1 colher (sopa) de margarina sem sal, 
+        7 colheres (sopa) de achocolatado ou 4 colheres (sopa) de chocolate em pó,chocolate granulado',
+    'Em uma panela funda, acrescente o leite condensado, a margarina e o chocolate em pó.,
+        Cozinhe em fogo médio e mexa até que o brigadeiro comece a desgrudar da panela.,
+        Deixe esfriar e faça pequenas bolas com a mão passando a massa no chocolate granulado.',
+    
+    'https://cdn.panelinha.com.br/receita/958014000000-Brigadeiro.jpg'
+);
+
+INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps) 
+VALUES (
+    'Bolo comum',
+    'Receita de bolo padrão.',
+    1, 10, 1, 40, 10,
+    'Trigo, ovos, óleo.',
+    'Mixture tudo e leve ao forno.'
+);
+
+INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image) 
+VALUES (
+    'Pudim de doce de leite',
+    'Receita de bolo padrão.',
+    2, 10, 1, 40, 20,
+    'Massa:,1 lata de leite condensado, 1 xícara de leite de vaca, 4 ovos inteiros, Calda: 1 xícara (chá) de açúcar, 1/3 de xícara (chá) de água',
+    'Calda:, Em uma panela, misture a água e o açúcar até formar uma calda. Unte uma forma com a calda e reserve. 
+    Massa:, Bata todos os ingredientes no liquidificador e despeje na forma caramelizada., Leve para assar em banho-maria por 40 minutos., 
+    Desenforme e sirva.',
+    'https://img.itdg.com.br/tdg/images/recipes/000/003/687/38788/38788_original.jpg?mode=crop&width=710&height=400'
+);
+
+-----------------------------------------------------------------------
+CREATE TABLE author (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+INSERT INTO author (name) VALUES ('Maria Ribeiro');
+INSERT INTO author (name) VALUES ('Antônio Luiz');
+INSERT INTO author (name) VALUES ('Manoela Oliveira');
+INSERT INTO author (name) VALUES ('Joana Silva');
+INSERT INTO author (name) VALUES ('Roberto Silveira');
+
+-----------------------------------------------------------------------
+CREATE TABLE category (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+INSERT INTO category (name) VALUES('appetizer');
+INSERT INTO category (name) VALUES('beverage');
+INSERT INTO category (name) VALUES('soup');
+INSERT INTO category (name) VALUES('salad');
+INSERT INTO category (name) VALUES('main_dish');
+INSERT INTO category (name) VALUES('bread');
+INSERT INTO category (name) VALUES('dessert');
+INSERT INTO category (name) VALUES('miscellaneous');
+// "appetizers, "beverage", "soup", "salad", "main_dish", "bread", "dessert", "miscellaneous"
+
+-----------------------------------------------------------------------
+CREATE TABLE dificulty (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+INSERT INTO dificulty (name) VALUES('easy');
+INSERT INTO dificulty (name) VALUES('moderate');
+INSERT INTO dificulty (name) VALUES('hard');
