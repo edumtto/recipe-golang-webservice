@@ -14,8 +14,8 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "postgres"
-	password = ""
+	user     = "edu"
+	password = "1234"
 	dbname   = "recipes_db"
 )
 
@@ -72,13 +72,13 @@ func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	//fmt.Println(recipe)
-	var imageHtml string
+	var imageHTML string
 	if recipe.ImageURL == nil {
-		imageHtml = ""
+		imageHTML = ""
 	} else {
-		imageHtml = "<img src='" + *recipe.ImageURL + "' height='200px'></img>"
+		imageHTML = "<img src='" + *recipe.ImageURL + "' height='200px'></img>"
 	}
-	fmt.Fprintf(w, "<h1>%s</h1>%s<p>%s</p>", recipe.Title, imageHtml, recipe.Description)
+	fmt.Fprintf(w, "<h1>%s</h1>%s<p>%s</p>", recipe.Title, imageHTML, recipe.Description)
 }
 
 func connectWithDatabase() *sql.DB {
