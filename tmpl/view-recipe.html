@@ -1,0 +1,23 @@
+<h1>{{.Title}}</h1>
+
+{{if .ImageURL}}
+    <img src="{{.ImageURL}}" height="150px"></img>
+{{end}}
+
+<p>[<a href="/edit/{{.Title}}">edit</a>]</p>
+
+<div>{{printf "%s" .Description}}</div>
+
+<h3>Ingredientes:</h3>
+<ul>
+    {{range .Ingredients}}
+    <li>{{.}}</li>
+    {{end}}
+</ul>
+
+<h3>Passos:</h3>
+<ol>
+    {{range .Steps}}
+    <li>{{.}}</li>
+    {{end}}
+</ol>

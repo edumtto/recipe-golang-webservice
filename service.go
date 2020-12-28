@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
+	"text/template"
 
 	_ "github.com/lib/pq"
 )
@@ -30,14 +32,14 @@ type Recipe struct {
 	Rating          int
 	PreparationTime int
 	Serving         int
-	Ingredients     string
-	Steps           string
+	Ingredients     []string
+	Steps           []string
 	//PublishedDate Date
 	AccessCount int
-	ImageURL    *string
+	ImageURL    string
 }
 
-//var templates = template.Must(template.ParseFiles("tmpl/edit.html", "tmpl/view.html"))
+var templates = template.Must(template.ParseFiles("tmpl/edit.html", "tmpl/view-recipe.html"))
 var validPath = regexp.MustCompile("^/receita/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
@@ -72,13 +74,21 @@ func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	//fmt.Println(recipe)
-	var imageHTML string
-	if recipe.ImageURL == nil {
-		imageHTML = ""
-	} else {
-		imageHTML = "<img src='" + *recipe.ImageURL + "' height='200px'></img>"
+	// var imageHTML string
+	// if recipe.ImageURL == nil {
+	// 	imageHTML = ""
+	// } else {
+	// 	imageHTML = "<img src='" + *recipe.ImageURL + "' height='200px'></img>"
+	// }
+	renderTemplate(w, "view-recipe", recipe)
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string, recipe *Recipe) {
+	err := templates.ExecuteTemplate(w, tmpl+".html", recipe)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	fmt.Fprintf(w, "<h1>%s</h1>%s<p>%s</p>", recipe.Title, imageHTML, recipe.Description)
 }
 
 func connectWithDatabase() *sql.DB {
@@ -103,11 +113,15 @@ func fetchRecipe(recipeID int) (*Recipe, error) {
 
 	row := db.QueryRow(sqlStatement, recipeID)
 	var recipe Recipe
+	var ingredients, steps string
 
 	err := row.Scan(&recipe.ID, &recipe.Title, &recipe.Description, &recipe.AuthorID,
 		&recipe.CategoryID, &recipe.DificultyID, &recipe.Rating, &recipe.PreparationTime,
-		&recipe.Serving, &recipe.Ingredients, &recipe.Steps, &recipe.AccessCount,
+		&recipe.Serving, &ingredients, &steps, &recipe.AccessCount,
 		&recipe.ImageURL)
+
+	recipe.Ingredients = strings.Split(ingredients, "|")
+	recipe.Steps = strings.Split(steps, "|")
 
 	switch err {
 	case sql.ErrNoRows:
