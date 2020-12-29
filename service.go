@@ -21,14 +21,32 @@ const (
 	dbname   = "recipes_db"
 )
 
+// RecipeAuthor struct
+type RecipeAuthor struct {
+	ID   int
+	Name string
+}
+
+// CategoryDificulty struct
+type CategoryDificulty struct {
+	ID   int
+	Name string
+}
+
+// RecipeDificulty struct
+type RecipeDificulty struct {
+	ID   int
+	Name string
+}
+
 // Recipe struct
 type Recipe struct {
 	ID              int
 	Title           string
 	Description     string
-	AuthorID        int
-	CategoryID      int
-	DificultyID     int
+	Author          RecipeAuthor
+	Category        CategoryDificulty
+	Dificulty       RecipeDificulty
 	Rating          int
 	PreparationTime int
 	Serving         int
@@ -61,7 +79,7 @@ func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 
-	recipe, err := fetchRecipe(recipeID)
+	recipe, err := fetchFullRecipe(recipeID)
 	if err != nil {
 		fmt.Println(err)
 		http.NotFound(w, r)
@@ -73,13 +91,6 @@ func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 
-	//fmt.Println(recipe)
-	// var imageHTML string
-	// if recipe.ImageURL == nil {
-	// 	imageHTML = ""
-	// } else {
-	// 	imageHTML = "<img src='" + *recipe.ImageURL + "' height='200px'></img>"
-	// }
 	renderTemplate(w, "view-recipe", recipe)
 }
 
@@ -106,6 +117,21 @@ func connectWithDatabase() *sql.DB {
 	return db
 }
 
+func fetchFullRecipe(recipeID int) (*Recipe, error) {
+	recipe, err := fetchRecipe(recipeID)
+	if err != nil {
+		return nil, err
+	}
+
+	author, err := fetchAuthor(recipe.Author.ID)
+	if err != nil {
+		return nil, err
+	}
+	recipe.Author.Name = author.Name
+
+	return recipe, nil
+}
+
 func fetchRecipe(recipeID int) (*Recipe, error) {
 	sqlStatement := `SELECT id, title, description, author_id, category_id, dificulty_id, rating,
 	preparation_time, serving, ingredients, steps, access_count, image
@@ -115,8 +141,8 @@ func fetchRecipe(recipeID int) (*Recipe, error) {
 	var recipe Recipe
 	var ingredients, steps string
 
-	err := row.Scan(&recipe.ID, &recipe.Title, &recipe.Description, &recipe.AuthorID,
-		&recipe.CategoryID, &recipe.DificultyID, &recipe.Rating, &recipe.PreparationTime,
+	err := row.Scan(&recipe.ID, &recipe.Title, &recipe.Description, &recipe.Author.ID,
+		&recipe.Category.ID, &recipe.Dificulty.ID, &recipe.Rating, &recipe.PreparationTime,
 		&recipe.Serving, &ingredients, &steps, &recipe.AccessCount,
 		&recipe.ImageURL)
 
@@ -128,6 +154,23 @@ func fetchRecipe(recipeID int) (*Recipe, error) {
 		return nil, nil
 	case nil:
 		return &recipe, nil
+	default:
+		return nil, err
+	}
+}
+
+func fetchAuthor(ID int) (*RecipeAuthor, error) {
+	var author RecipeAuthor
+
+	sqlStatement := `SELECT id, name FROM author WHERE id=$1;`
+	row := db.QueryRow(sqlStatement, ID)
+	err := row.Scan(&author.ID, &author.Name)
+
+	switch err {
+	case sql.ErrNoRows:
+		return nil, nil
+	case nil:
+		return &author, nil
 	default:
 		return nil, err
 	}
