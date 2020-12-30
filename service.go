@@ -27,8 +27,8 @@ type RecipeAuthor struct {
 	Name string
 }
 
-// CategoryDificulty struct
-type CategoryDificulty struct {
+// RecipeCategory struct
+type RecipeCategory struct {
 	ID   int
 	Name string
 }
@@ -45,7 +45,7 @@ type Recipe struct {
 	Title           string
 	Description     string
 	Author          RecipeAuthor
-	Category        CategoryDificulty
+	Category        RecipeCategory
 	Dificulty       RecipeDificulty
 	Rating          int
 	PreparationTime int
@@ -129,6 +129,18 @@ func fetchFullRecipe(recipeID int) (*Recipe, error) {
 	}
 	recipe.Author.Name = author.Name
 
+	category, err := fetchCategory(recipe.Category.ID)
+	if err != nil {
+		return nil, err
+	}
+	recipe.Category.Name = category.Name
+
+	dificulty, err := fetchDificulty(recipe.Dificulty.ID)
+	if err != nil {
+		return nil, err
+	}
+	recipe.Dificulty.Name = dificulty.Name
+
 	return recipe, nil
 }
 
@@ -171,6 +183,40 @@ func fetchAuthor(ID int) (*RecipeAuthor, error) {
 		return nil, nil
 	case nil:
 		return &author, nil
+	default:
+		return nil, err
+	}
+}
+
+func fetchCategory(ID int) (*RecipeCategory, error) {
+	var category RecipeCategory
+
+	sqlStatement := `SELECT id, name FROM category WHERE id=$1;`
+	row := db.QueryRow(sqlStatement, ID)
+	err := row.Scan(&category.ID, &category.Name)
+
+	switch err {
+	case sql.ErrNoRows:
+		return nil, nil
+	case nil:
+		return &category, nil
+	default:
+		return nil, err
+	}
+}
+
+func fetchDificulty(ID int) (*RecipeDificulty, error) {
+	var dificulty RecipeDificulty
+
+	sqlStatement := `SELECT id, name FROM dificulty WHERE id=$1;`
+	row := db.QueryRow(sqlStatement, ID)
+	err := row.Scan(&dificulty.ID, &dificulty.Name)
+
+	switch err {
+	case sql.ErrNoRows:
+		return nil, nil
+	case nil:
+		return &dificulty, nil
 	default:
 		return nil, err
 	}

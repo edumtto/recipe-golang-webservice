@@ -73,14 +73,14 @@ CREATE TABLE category (
     name TEXT
 );
 
-INSERT INTO category (name) VALUES('appetizer');
-INSERT INTO category (name) VALUES('beverage');
-INSERT INTO category (name) VALUES('soup');
-INSERT INTO category (name) VALUES('salad');
-INSERT INTO category (name) VALUES('main_dish');
-INSERT INTO category (name) VALUES('bread');
-INSERT INTO category (name) VALUES('dessert');
-INSERT INTO category (name) VALUES('miscellaneous');
+INSERT INTO category (name) VALUES('Entradas');
+INSERT INTO category (name) VALUES('Bebidas');
+INSERT INTO category (name) VALUES('Sopas');
+INSERT INTO category (name) VALUES('Saladas');
+INSERT INTO category (name) VALUES('Pratos principais');
+INSERT INTO category (name) VALUES('Pães');
+INSERT INTO category (name) VALUES('Sobremesas');
+INSERT INTO category (name) VALUES('Diversas');
 // "appetizers, "beverage", "soup", "salad", "main_dish", "bread", "dessert", "miscellaneous"
 
 -----------------------------------------------------------------------
@@ -89,6 +89,6 @@ CREATE TABLE dificulty (
     name TEXT
 );
 
-INSERT INTO dificulty (name) VALUES('easy');
-INSERT INTO dificulty (name) VALUES('moderate');
-INSERT INTO dificulty (name) VALUES('hard');
+INSERT INTO dificulty (name) VALUES('Fácil');
+INSERT INTO dificulty (name) VALUES('Moderado');
+INSERT INTO dificulty (name) VALUES('Difícil');
