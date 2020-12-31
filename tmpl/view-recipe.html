@@ -3,22 +3,10 @@
 
 <!-- Head -->
 <head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-.checked {
-  color: orange;
-}
-</style>
 </head>
 
 <!-- Body -->
 <body>
-
-<span class="fa fa-star checked"></span>
-<span class="fa fa-star checked"></span>
-<span class="fa fa-star checked"></span>
-<span class="fa fa-star"></span>
-<span class="fa fa-star"></span>
 
 <h1>{{.Title}}</h1>
 <p>(por {{.Author.Name}})</p>
@@ -29,7 +17,7 @@
     <img src="{{.ImageURL}}" height="150px"></img>
 {{end}}
 
-<p>[<a href="/edit/{{.Title}}">edit</a>]</p>
+<p>[<a href="/editar/{{.ID}}">edit</a>]</p>
 
 <div>{{printf "%s" .Description}}</div>
 

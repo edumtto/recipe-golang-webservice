@@ -1,0 +1,11 @@
+<h1>Editando Receita</h1>
+
+<form action="/salvar/{{.ID}}" method="POST">
+    <label for="title">Título:</label>
+    <input type="text" id="title" name="title" size="80" value="{{.Title}}"></br></br>
+
+    <label for="description">Descrição:</label></br>
+    <textarea name="description" rows="3" cols="80">{{printf "%s" .Description}}</textarea></br></br>
+    
+    <input type="submit" value="Save">
+</form>

@@ -57,8 +57,8 @@ type Recipe struct {
 	ImageURL    string
 }
 
-var templates = template.Must(template.ParseFiles("tmpl/edit.html", "tmpl/view-recipe.html"))
-var validPath = regexp.MustCompile("^/receita/([a-zA-Z0-9]+)$")
+var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html"))
+var validPath = regexp.MustCompile("^/(receita|editar|salvar)/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -68,11 +68,12 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 			http.NotFound(w, r)
 			return
 		}
-		fn(w, r, m[1])
+		//fmt.Println(m)
+		fn(w, r, m[2])
 	}
 }
 
-func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+func viewRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
@@ -92,6 +93,50 @@ func recipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	renderTemplate(w, "view-recipe", recipe)
+}
+
+func editRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+	recipeID, err := strconv.Atoi(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	recipe, err := fetchFullRecipe(recipeID)
+	if err != nil {
+		fmt.Println(err)
+		http.NotFound(w, r)
+		return
+	}
+
+	if recipe == nil {
+		fmt.Fprintf(w, "Receita não encontrada!")
+		return
+	}
+
+	renderTemplate(w, "edit-recipe", recipe)
+}
+
+func saveRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+	recipeID, err := strconv.Atoi(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	recipe, err := fetchRecipe(recipeID)
+	if recipe == nil {
+		// insert new recipe
+		http.NotFound(w, r)
+		return
+	}
+
+	err = updateRecipe(w, r, recipeID)
+	if err != nil {
+		panic(err)
+	}
+
+	http.Redirect(w, r, "/receita/"+id, http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, recipe *Recipe) {
@@ -222,6 +267,16 @@ func fetchDificulty(ID int) (*RecipeDificulty, error) {
 	}
 }
 
+func updateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
+	sqlStatement := `UPDATE recipe SET title = $2, description = $3 WHERE id = $1;`
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+	// ingredients := strings.Join(recipe.Ingredients, "|")
+	// steps := strings.Join(recipe.Steps, "|")
+	_, err := db.Exec(sqlStatement, id, title, description)
+	return err
+}
+
 func insertRecipeTest() {
 	sqlStatement := `
 	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
@@ -244,7 +299,9 @@ func main() {
 	db = connectWithDatabase()
 	defer db.Close()
 
-	http.HandleFunc("/receita/", makeHandler(recipeHandler))
+	http.HandleFunc("/receita/", makeHandler(viewRecipeHandler))
+	http.HandleFunc("/editar/", makeHandler(editRecipeHandler))
+	http.HandleFunc("/salvar/", makeHandler(saveRecipeHandler))
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

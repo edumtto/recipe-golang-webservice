@@ -23,8 +23,7 @@ select published_date, now() - published_date as diff from recipe ;
 INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image) 
 VALUES (
     'Brigadeiro',
-    'O brigadeiro é um doce genuinamente brasileiro. Um orgulho só! 
-        Essa delícia de chocolate faz a alegria da criançada e de muita gente grande em qualquer circunstância.',
+    'O brigadeiro é um doce genuinamente brasileiro. Um orgulho só! Essa delícia de chocolate faz a alegria da criançada e de muita gente grande em qualquer circunstância.',
     3, 10, 1, 25, 30,
     '1 caixa de leite condensado| 1 colher (sopa) de margarina sem sal| 
         7 colheres (sopa) de achocolatado ou 4 colheres (sopa) de chocolate em pó|chocolate granulado',
