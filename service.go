@@ -65,17 +65,17 @@ type RecipePreview struct {
 }
 
 var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html", "tmpl/new-recipe.html"))
-var validPath = regexp.MustCompile("^/(view|edit|create|update|new|home)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
+			fmt.Println("Invalid path!")
 			http.NotFound(w, r)
 			return
 		}
-		//fmt.Println(m)
 		fn(w, r, m[2])
 	}
 }
@@ -169,6 +169,21 @@ func updateRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	http.Redirect(w, r, "/view/"+id, http.StatusFound)
+}
+
+func deleteRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+	recipeID, err := strconv.Atoi(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = removeRecipe(w, r, recipeID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/home/0", http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, recipe *Recipe) {
@@ -357,6 +372,12 @@ func insertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
 	return id, err
 }
 
+func removeRecipe(w http.ResponseWriter, r *http.Request, id int) error {
+	sqlStatement := `DELETE FROM recipe WHERE id = $1;`
+	_, err := db.Exec(sqlStatement, id)
+	return err
+}
+
 func main() {
 	db = connectWithDatabase()
 	defer db.Close()
@@ -367,7 +388,7 @@ func main() {
 	http.HandleFunc("/new/", makeHandler(newRecipeHandler))
 	http.HandleFunc("/create/", makeHandler(createRecipeHandler))
 	http.HandleFunc("/update/", makeHandler(updateRecipeHandler))
-	//http.HandleFunc("/delete/", makeHandler(deleteRecipeHandler))
+	http.HandleFunc("/delete/", makeHandler(deleteRecipeHandler))
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
