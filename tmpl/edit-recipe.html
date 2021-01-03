@@ -1,11 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Head -->
+<head>
+</head>
+
+<!-- Body -->
+<body></body>
+
 <h1>Editando Receita</h1>
 
-<form action="/salvar/{{.ID}}" method="POST">
+<form action="/update/{{.ID}}" method="POST">
     <label for="title">Título:</label>
     <input type="text" id="title" name="title" size="80" value="{{.Title}}"></br></br>
 
     <label for="description">Descrição:</label></br>
     <textarea name="description" rows="3" cols="80">{{printf "%s" .Description}}</textarea></br></br>
-    
+
+    <label for="preparation-time">Tempo de preparação (em segundos):</label>
+    <input type="text" id="preparation-time" name="preparation-time" value="{{.PreparationTime}}"></br></br>
+
+    <label for="serving">Rendimento (em porções):</label>
+    <input type="text" id="serving" name="serving" value="{{.Serving}}"></br></br>
+
+    <label for="imgURL">Imagem ilustrativa:</label>
+    <input type="text" id="imgURL" name="imgURL" value="{{.ImageURL}}"></br></br>
+
     <input type="submit" value="Save">
 </form>
+
+<!-- Body 
+<script>
+  var e = document.getElementById("difficulty");
+  for (const option of e.options) {
+    if (option.innerHTML == {{.Dificulty}}) {
+      e.value = option.value; 
+    }
+  }
+</script> 
+-->
+
+</body>
+</html>

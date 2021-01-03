@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Head -->
+<head>
+</head>
+
+<!-- Body -->
+<body></body>
+
+<h1>Criar Receita</h1>
+
+<form action="/salvar/{{.ID}}" method="POST">
+    <label for="title">Título:</label>
+    <input type="text" id="title" name="title" value="{{.Title}}"></br></br>
+
+    <label for="description">Descrição:</label></br>
+    <textarea name="description" rows="3" cols="80">{{printf "%s" .Description}}</textarea></br></br>
+
+    <label for="category">Categoria:</label>
+    <select name="category" id="category">
+      <option value=4>Entradas</option>
+      <option value=5>Bebidas</option>
+      <option value=6>Sopas</option>
+      <option value=7>Saladas</option>
+      <option value=8>Pratos principais</option>
+      <option value=9>Pães</option>
+      <option value=10>Sobremesas</option>
+      <option value=11>Diversas</option>
+    </select></br></br>
+
+    <label for="difficulty">Dificuldade:</label></br>
+    <select name="difficulty" id="difficulty">
+      <option value=1>Fácil</option>
+      <option value=2>Moderada</option>
+      <option value=3>Difícil</option>
+    </select></br></br>
+
+    <label for="preparation-time">Tempo de preparação (em segundos):</label>
+    <input type="text" id="preparation-time" name="preparation-time" value="{{.PreparationTime}}"></br></br>
+
+    <input type="submit" value="Save">
+</form>
+
+</body>
+</html>
