@@ -65,7 +65,7 @@ type RecipePreview struct {
 }
 
 var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html", "tmpl/new-recipe.html"))
-var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/?([a-zA-Z0-9]+)?$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -183,7 +183,7 @@ func deleteRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/home/0", http.StatusFound)
+	http.Redirect(w, r, "/home", http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, recipe *Recipe) {
