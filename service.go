@@ -64,8 +64,8 @@ type RecipePreview struct {
 	Description string
 }
 
-var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html"))
-var validPath = regexp.MustCompile("^/(view|edit|create|update|home)/([a-zA-Z0-9]+)$")
+var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html", "tmpl/new-recipe.html"))
+var validPath = regexp.MustCompile("^/(view|edit|create|update|new|home)/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -138,13 +138,17 @@ func editRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	renderTemplate(w, "edit-recipe", recipe)
 }
 
+func newRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+	renderTemplate(w, "new-recipe", nil)
+}
+
 func createRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
-	err := insertRecipe(w, r)
+	insertedID, err := insertRecipe(w, r)
 	if err != nil {
 		panic(err)
 	}
-	// retornar id para redirecionar
-	//http.Redirect(w, r, "/receita/"+id, http.StatusFound)
+	url := fmt.Sprintf("/view/%d", insertedID)
+	http.Redirect(w, r, url, http.StatusFound)
 }
 
 func updateRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
@@ -332,7 +336,7 @@ func updateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	return err
 }
 
-func insertRecipe(w http.ResponseWriter, r *http.Request) error {
+func insertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
 	sqlStatement := `
 	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -340,9 +344,17 @@ func insertRecipe(w http.ResponseWriter, r *http.Request) error {
 
 	title := r.FormValue("title")
 	description := r.FormValue("description")
-
-	_, err := db.Exec(sqlStatement, title, description, 2, 10, 1, 40, 20, "", "", "")
-	return err
+	categoryID, _ := strconv.Atoi(r.FormValue("category"))
+	difficultyID, _ := strconv.Atoi(r.FormValue("difficulty"))
+	preparationTime, _ := strconv.Atoi(r.FormValue("preparation-time"))
+	serving := r.FormValue("serving")
+	ingredients := r.FormValue("ingredients")
+	steps := r.FormValue("steps")
+	imageURL := r.FormValue("imgURL")
+	var id int
+	err := db.QueryRow(sqlStatement, title, description, 2, categoryID, difficultyID, preparationTime, serving, ingredients, steps, imageURL).Scan(&id)
+	fmt.Println(id)
+	return id, err
 }
 
 func main() {
@@ -352,6 +364,7 @@ func main() {
 	http.HandleFunc("/home/", makeHandler(listRecipesHandler))
 	http.HandleFunc("/view/", makeHandler(viewRecipeHandler))
 	http.HandleFunc("/edit/", makeHandler(editRecipeHandler))
+	http.HandleFunc("/new/", makeHandler(newRecipeHandler))
 	http.HandleFunc("/create/", makeHandler(createRecipeHandler))
 	http.HandleFunc("/update/", makeHandler(updateRecipeHandler))
 	//http.HandleFunc("/delete/", makeHandler(deleteRecipeHandler))

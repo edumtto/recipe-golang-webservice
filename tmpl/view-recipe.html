@@ -8,6 +8,9 @@
 <!-- Body -->
 <body>
 
+<p><a href="/home/0">HOME</a></p>
+
+
 <h1>{{.Title}}</h1>
 <p>(por {{.Author.Name}})</p>
 <p>Categoria: {{.Category.Name}}</p>
@@ -17,7 +20,7 @@
     <img src="{{.ImageURL}}" height="150px"></img>
 {{end}}
 
-<p>[<a href="/edit/{{.ID}}">edit</a>]</p>
+<p>[<a href="/edit/{{.ID}}">editar</a>]</p>
 
 <div>{{printf "%s" .Description}}</div>
 
