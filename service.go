@@ -33,8 +33,8 @@ type RecipeCategory struct {
 	Name string
 }
 
-// RecipeDificulty struct
-type RecipeDificulty struct {
+// RecipeDifficulty struct
+type RecipeDifficulty struct {
 	ID   int
 	Name string
 }
@@ -46,7 +46,7 @@ type Recipe struct {
 	Description     string
 	Author          RecipeAuthor
 	Category        RecipeCategory
-	Dificulty       RecipeDificulty
+	Dificulty       RecipeDifficulty
 	Rating          int
 	PreparationTime int
 	Serving         int
@@ -57,8 +57,15 @@ type Recipe struct {
 	ImageURL    string
 }
 
+// // RecipePreview struct
+// type RecipePreview struct {
+// 	ID          int
+// 	Title       string
+// 	Description string
+// }
+
 var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html"))
-var validPath = regexp.MustCompile("^/(receita|editar|salvar)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile("^/(view|edit|create|update)/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -117,7 +124,16 @@ func editRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	renderTemplate(w, "edit-recipe", recipe)
 }
 
-func saveRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+func createRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+	err := insertRecipe(w, r)
+	if err != nil {
+		panic(err)
+	}
+	// retornar id para redirecionar
+	//http.Redirect(w, r, "/receita/"+id, http.StatusFound)
+}
+
+func updateRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
@@ -126,9 +142,7 @@ func saveRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 
 	recipe, err := fetchRecipe(recipeID)
 	if recipe == nil {
-		// insert new recipe
-		http.NotFound(w, r)
-		return
+		panic(err)
 	}
 
 	err = updateRecipe(w, r, recipeID)
@@ -136,7 +150,7 @@ func saveRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
 		panic(err)
 	}
 
-	http.Redirect(w, r, "/receita/"+id, http.StatusFound)
+	http.Redirect(w, r, "/view/"+id, http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, recipe *Recipe) {
@@ -250,8 +264,8 @@ func fetchCategory(ID int) (*RecipeCategory, error) {
 	}
 }
 
-func fetchDificulty(ID int) (*RecipeDificulty, error) {
-	var dificulty RecipeDificulty
+func fetchDificulty(ID int) (*RecipeDifficulty, error) {
+	var dificulty RecipeDifficulty
 
 	sqlStatement := `SELECT id, name FROM dificulty WHERE id=$1;`
 	row := db.QueryRow(sqlStatement, ID)
@@ -268,40 +282,43 @@ func fetchDificulty(ID int) (*RecipeDificulty, error) {
 }
 
 func updateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
-	sqlStatement := `UPDATE recipe SET title = $2, description = $3 WHERE id = $1;`
+	sqlStatement := `UPDATE recipe 
+	SET title = $2, description = $3, preparation_time = $4, serving = $5, image =$6
+	WHERE id = $1;`
 	title := r.FormValue("title")
 	description := r.FormValue("description")
+	//difficultyID, _ := strconv.Atoi(r.FormValue("difficulty"))
+	preparationTime, _ := strconv.Atoi(r.FormValue("preparation-time"))
 	// ingredients := strings.Join(recipe.Ingredients, "|")
 	// steps := strings.Join(recipe.Steps, "|")
-	_, err := db.Exec(sqlStatement, id, title, description)
+	serving := r.FormValue("serving")
+	imageURL := r.FormValue("imgURL")
+	_, err := db.Exec(sqlStatement, id, title, description, preparationTime, serving, imageURL)
 	return err
 }
 
-func insertRecipeTest() {
+func insertRecipe(w http.ResponseWriter, r *http.Request) error {
 	sqlStatement := `
 	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	RETURNING id;`
 
-	ingredients := "Massa:,1 lata de leite condensado, 1 xícara de leite de vaca, 4 ovos inteiros, Calda: 1 xícara (chá) de açúcar, 1/3 de xícara (chá) de água"
-	steps := `Calda:, Em uma panela, misture a água e o açúcar até formar uma calda. Unte uma forma com a calda e reserve.
-	Massa:, Bata todos os ingredientes no liquidificador e despeje na forma caramelizada., Leve para assar em banho-maria por 40 minutos.,
-	Desenforme e sirva.`
-	imgURL := "https://img.itdg.com.br/tdg/images/recipes/000/003/687/38788/38788_original.jpg?mode=crop&width=710&height=400"
+	title := r.FormValue("title")
+	description := r.FormValue("description")
 
-	_, err := db.Exec(sqlStatement, "Pudim de doce de leite 2", "Receita de pudim de doce de leite.", 2, 10, 1, 40, 20, ingredients, steps, imgURL)
-	if err != nil {
-		panic(err)
-	}
+	_, err := db.Exec(sqlStatement, title, description, 2, 10, 1, 40, 20, "", "", "")
+	return err
 }
 
 func main() {
 	db = connectWithDatabase()
 	defer db.Close()
 
-	http.HandleFunc("/receita/", makeHandler(viewRecipeHandler))
-	http.HandleFunc("/editar/", makeHandler(editRecipeHandler))
-	http.HandleFunc("/salvar/", makeHandler(saveRecipeHandler))
+	http.HandleFunc("/view/", makeHandler(viewRecipeHandler))
+	http.HandleFunc("/edit/", makeHandler(editRecipeHandler))
+	http.HandleFunc("/create/", makeHandler(createRecipeHandler))
+	http.HandleFunc("/update/", makeHandler(updateRecipeHandler))
+	//http.HandleFunc("/delete/", makeHandler(deleteRecipeHandler))
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
