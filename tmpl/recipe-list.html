@@ -10,4 +10,8 @@
 
 <h1>Todas as receitas:</h1>
 
+{{range .}}
+<a href="/view/{{.ID}}">{{.Title}}</a></br>
+{{end}}
+
 </body>

@@ -57,15 +57,15 @@ type Recipe struct {
 	ImageURL    string
 }
 
-// // RecipePreview struct
-// type RecipePreview struct {
-// 	ID          int
-// 	Title       string
-// 	Description string
-// }
+// RecipePreview struct
+type RecipePreview struct {
+	ID          int
+	Title       string
+	Description string
+}
 
-var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html"))
-var validPath = regexp.MustCompile("^/(view|edit|create|update)/([a-zA-Z0-9]+)$")
+var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html"))
+var validPath = regexp.MustCompile("^/(view|edit|create|update|home)/([a-zA-Z0-9]+)$")
 var db *sql.DB
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -77,6 +77,20 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 		}
 		//fmt.Println(m)
 		fn(w, r, m[2])
+	}
+}
+
+func listRecipesHandler(w http.ResponseWriter, r *http.Request, id string) {
+	recipePreviews, err := fetchRecipePreviews(w, r)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = templates.ExecuteTemplate(w, "recipe-list.html", recipePreviews)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -281,6 +295,27 @@ func fetchDificulty(ID int) (*RecipeDifficulty, error) {
 	}
 }
 
+func fetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]RecipePreview, error) {
+	sqlStatement := `SELECT id, title, description FROM recipe LIMIT $1;`
+	rows, err := db.Query(sqlStatement, 10)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+	var previews []RecipePreview
+
+	for rows.Next() {
+		var preview RecipePreview
+		if err := rows.Scan(&preview.ID, &preview.Title, &preview.Description); err != nil {
+			log.Fatal(err)
+		}
+		previews = append(previews, preview)
+	}
+
+	return &previews, err
+}
+
 func updateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	sqlStatement := `UPDATE recipe 
 	SET title = $2, description = $3, preparation_time = $4, serving = $5, image =$6
@@ -314,6 +349,7 @@ func main() {
 	db = connectWithDatabase()
 	defer db.Close()
 
+	http.HandleFunc("/home/", makeHandler(listRecipesHandler))
 	http.HandleFunc("/view/", makeHandler(viewRecipeHandler))
 	http.HandleFunc("/edit/", makeHandler(editRecipeHandler))
 	http.HandleFunc("/create/", makeHandler(createRecipeHandler))
