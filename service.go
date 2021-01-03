@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -52,9 +53,9 @@ type Recipe struct {
 	Serving         int
 	Ingredients     []string
 	Steps           []string
-	//PublishedDate Date
-	AccessCount int
-	ImageURL    string
+	PublishedDate   string
+	AccessCount     int
+	ImageURL        string
 }
 
 // RecipePreview struct
@@ -238,20 +239,22 @@ func fetchFullRecipe(recipeID int) (*Recipe, error) {
 
 func fetchRecipe(recipeID int) (*Recipe, error) {
 	sqlStatement := `SELECT id, title, description, author_id, category_id, dificulty_id, rating,
-	preparation_time, serving, ingredients, steps, access_count, image
+	preparation_time, serving, ingredients, steps, access_count, image, published_date
 	FROM recipe WHERE id=$1;`
 
 	row := db.QueryRow(sqlStatement, recipeID)
 	var recipe Recipe
 	var ingredients, steps string
+	var publishedDateTime time.Time
 
 	err := row.Scan(&recipe.ID, &recipe.Title, &recipe.Description, &recipe.Author.ID,
 		&recipe.Category.ID, &recipe.Dificulty.ID, &recipe.Rating, &recipe.PreparationTime,
 		&recipe.Serving, &ingredients, &steps, &recipe.AccessCount,
-		&recipe.ImageURL)
+		&recipe.ImageURL, &publishedDateTime)
 
 	recipe.Ingredients = strings.Split(ingredients, "|")
 	recipe.Steps = strings.Split(steps, "|")
+	recipe.PublishedDate = formatDate(publishedDateTime)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -261,6 +264,13 @@ func fetchRecipe(recipeID int) (*Recipe, error) {
 	default:
 		return nil, err
 	}
+}
+
+func formatDate(input time.Time) string {
+	dateStr := input.Format(time.RFC3339)[:10]
+	fmt.Println(dateStr)
+	t, _ := time.Parse("2006-01-02", dateStr)
+	return t.Format("02/Jan/2006")
 }
 
 func fetchAuthor(ID int) (*RecipeAuthor, error) {
@@ -341,10 +351,7 @@ func updateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	WHERE id = $1;`
 	title := r.FormValue("title")
 	description := r.FormValue("description")
-	//difficultyID, _ := strconv.Atoi(r.FormValue("difficulty"))
 	preparationTime, _ := strconv.Atoi(r.FormValue("preparation-time"))
-	// ingredients := strings.Join(recipe.Ingredients, "|")
-	// steps := strings.Join(recipe.Steps, "|")
 	serving := r.FormValue("serving")
 	imageURL := r.FormValue("imgURL")
 	_, err := db.Exec(sqlStatement, id, title, description, preparationTime, serving, imageURL)
