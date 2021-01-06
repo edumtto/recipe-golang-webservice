@@ -24,7 +24,7 @@ const (
 
 var templates = template.Must(template.ParseFiles("tmpl/edit-recipe.html", "tmpl/view-recipe.html", "tmpl/recipe-list.html", "tmpl/new-recipe.html"))
 var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/?([a-zA-Z0-9]+)?$")
-var repo *repository.Repository
+var repo repository.Interface
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

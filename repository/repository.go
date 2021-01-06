@@ -11,6 +11,7 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/domain"
 
+	// Postgres driver
 	_ "github.com/lib/pq"
 )
 
@@ -22,13 +23,25 @@ const (
 	dbname   = "recipes_db"
 )
 
+// Interface interface
+type Interface interface {
+	FetchRecipe(recipeID int) (*domain.Recipe, error)
+	FetchAuthor(ID int) (*domain.RecipeAuthor, error)
+	FetchCategory(ID int) (*domain.RecipeCategory, error)
+	FetchDificulty(ID int) (*domain.RecipeDifficulty, error)
+	FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error)
+	UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error
+	InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error)
+	RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error
+}
+
 // Repository struct
 type Repository struct {
 	db *sql.DB
 }
 
 // NewRepository method
-func NewRepository() *Repository {
+func NewRepository() Interface {
 	database := connectWithDatabase()
 	//defer database.Close()
 
@@ -52,7 +65,7 @@ func connectWithDatabase() *sql.DB {
 	return db
 }
 
-func (repo *Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
+func (repo Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
 	sqlStatement := `SELECT id, title, description, author_id, category_id, dificulty_id, rating,
 	preparation_time, serving, ingredients, steps, access_count, image, published_date
 	FROM recipe WHERE id=$1;`
@@ -88,7 +101,7 @@ func formatDate(input time.Time) string {
 	return t.Format("02/Jan/2006")
 }
 
-func (repo *Repository) FetchAuthor(ID int) (*domain.RecipeAuthor, error) {
+func (repo Repository) FetchAuthor(ID int) (*domain.RecipeAuthor, error) {
 	var author domain.RecipeAuthor
 
 	sqlStatement := `SELECT id, name FROM author WHERE id=$1;`
@@ -105,7 +118,7 @@ func (repo *Repository) FetchAuthor(ID int) (*domain.RecipeAuthor, error) {
 	}
 }
 
-func (repo *Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
+func (repo Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
 	var category domain.RecipeCategory
 
 	sqlStatement := `SELECT id, name FROM category WHERE id=$1;`
@@ -122,7 +135,7 @@ func (repo *Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
 	}
 }
 
-func (repo *Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error) {
+func (repo Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error) {
 	var dificulty domain.RecipeDifficulty
 
 	sqlStatement := `SELECT id, name FROM dificulty WHERE id=$1;`
@@ -139,7 +152,7 @@ func (repo *Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error)
 	}
 }
 
-func (repo *Repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error) {
+func (repo Repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error) {
 	sqlStatement := `SELECT id, title, description FROM recipe LIMIT $1;`
 	rows, err := repo.db.Query(sqlStatement, 10)
 	if err != nil {
@@ -160,7 +173,7 @@ func (repo *Repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Reque
 	return &previews, err
 }
 
-func (repo *Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
+func (repo Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	sqlStatement := `UPDATE recipe 
 	SET title = $2, description = $3, preparation_time = $4, serving = $5, image =$6
 	WHERE id = $1;`
@@ -173,7 +186,7 @@ func (repo *Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id 
 	return err
 }
 
-func (repo *Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
+func (repo Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
 	sqlStatement := `
 	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -194,7 +207,7 @@ func (repo *Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (in
 	return id, err
 }
 
-func (repo *Repository) RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error {
+func (repo Repository) RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	sqlStatement := `DELETE FROM recipe WHERE id = $1;`
 	_, err := repo.db.Exec(sqlStatement, id)
 	return err
