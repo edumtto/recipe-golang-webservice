@@ -15,7 +15,7 @@ type RecipeService struct {
 	repo repository.Interface
 }
 
-var templates = template.Must(template.ParseFiles("../tmpl/edit-recipe.html", "../tmpl/view-recipe.html", "../tmpl/recipe-list.html", "../tmpl/new-recipe.html"))
+var templates = template.Must(template.ParseFiles("./tmpl/edit-recipe.html", "./tmpl/view-recipe.html", "./tmpl/recipe-list.html", "./tmpl/new-recipe.html"))
 
 // func main() {
 // 	fmt.Println("ok")
@@ -44,7 +44,7 @@ func (service *RecipeService) ListRecipes(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (service *RecipeService) ViewRecipeHandler(w http.ResponseWriter, r *http.Request, id string) {
+func (service *RecipeService) ViewRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
@@ -121,7 +121,7 @@ func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/view/"+id, http.StatusFound)
 }
 
-func (service *RecipeService) deleteRecipe(w http.ResponseWriter, r *http.Request, id string) {
+func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
