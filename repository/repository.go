@@ -96,7 +96,6 @@ func (repo Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
 
 func formatDate(input time.Time) string {
 	dateStr := input.Format(time.RFC3339)[:10]
-	fmt.Println(dateStr)
 	t, _ := time.Parse("2006-01-02", dateStr)
 	return t.Format("02/Jan/2006")
 }
