@@ -7,25 +7,24 @@ import (
 	"text/template"
 
 	"github.com/Edu15/recipe-golang-webservice/domain"
+	"github.com/Edu15/recipe-golang-webservice/render"
 	"github.com/Edu15/recipe-golang-webservice/repository"
 )
 
 // RecipeService provides use case methods to fetch and manipulate recipes from a repository.
 type RecipeService struct {
-	repo repository.Interface
+	repo     repository.Interface
+	renderer render.Interface
 }
 
 var templates = template.Must(template.ParseFiles("./tmpl/edit-recipe.html", "./tmpl/view-recipe.html", "./tmpl/recipe-list.html", "./tmpl/new-recipe.html"))
-
-// func main() {
-// 	fmt.Println("ok")
-// }
 
 // NewRecipeService creates a new instance o RecipeService injecting a repository.
 func NewRecipeService() *RecipeService {
 	repository := repository.NewRepository()
 	return &RecipeService{
-		repo: repository,
+		repo:     repository,
+		renderer: render.HTMLRenderer{},
 	}
 }
 
@@ -37,13 +36,10 @@ func (service *RecipeService) ListRecipes(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = templates.ExecuteTemplate(w, "recipe-list.html", recipePreviews)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	service.renderer.RenderRecipeList(w, recipePreviews)
 }
 
+// ViewRecipe fetches all information from recipe and present a formated result.
 func (service *RecipeService) ViewRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
@@ -63,9 +59,10 @@ func (service *RecipeService) ViewRecipe(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	renderTemplate(w, "view-recipe", recipe)
+	service.renderer.RenderRecipe(w, recipe)
 }
 
+// EditRecipe fetches recipe and present a form to edit the stored recipe information.
 func (service *RecipeService) EditRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
@@ -85,13 +82,15 @@ func (service *RecipeService) EditRecipe(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	renderTemplate(w, "edit-recipe", recipe)
+	service.renderer.RenderRecipeEditor(w, recipe)
 }
 
+// NewRecipe renders a form to input information for a new recipe.
 func (service *RecipeService) NewRecipe(w http.ResponseWriter, r *http.Request, id string) {
-	renderTemplate(w, "new-recipe", nil)
+	service.renderer.RenderNewRecipeForm(w)
 }
 
+// CreateRecipe persists a specified new recipe on the database.
 func (service *RecipeService) CreateRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	insertedID, err := service.repo.InsertRecipe(w, r)
 	if err != nil {
@@ -101,6 +100,7 @@ func (service *RecipeService) CreateRecipe(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
+// UpdateRecipe updates all information from a altered recipe on the database.
 func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
@@ -121,6 +121,7 @@ func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/view/"+id, http.StatusFound)
 }
 
+// DeleteRecipe removes all information from a specified recipe from the database.
 func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
@@ -134,14 +135,6 @@ func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	http.Redirect(w, r, "/home", http.StatusFound)
-}
-
-func renderTemplate(w http.ResponseWriter, tmpl string, recipe *domain.Recipe) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", recipe)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 func fetchFullRecipe(recipeID int, repo repository.Interface) (*domain.Recipe, error) {
