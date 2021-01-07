@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/Edu15/recipe-golang-webservice/domain"
+	"github.com/Edu15/recipe-golang-webservice/src/domain"
 )
 
 type Interface interface {
@@ -16,7 +16,7 @@ type Interface interface {
 
 type HTMLRenderer struct{}
 
-var templates = template.Must(template.ParseFiles("./tmpl/edit-recipe.html", "./tmpl/view-recipe.html", "./tmpl/recipe-list.html", "./tmpl/new-recipe.html"))
+var templates = template.Must(template.ParseFiles("../tmpl/edit-recipe.html", "../tmpl/view-recipe.html", "../tmpl/recipe-list.html", "../tmpl/new-recipe.html"))
 
 func (HTMLRenderer) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]domain.RecipePreview) {
 	err := templates.ExecuteTemplate(w, "recipe-list.html", recipePreviews)

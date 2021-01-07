@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/Edu15/recipe-golang-webservice/service"
+	"github.com/Edu15/recipe-golang-webservice/src/service"
 )
 
 var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/?([a-zA-Z0-9]+)?$")

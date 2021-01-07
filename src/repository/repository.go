@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Edu15/recipe-golang-webservice/domain"
+	"github.com/Edu15/recipe-golang-webservice/src/domain"
 
 	// Postgres driver
 	_ "github.com/lib/pq"

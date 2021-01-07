@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"text/template"
 
-	"github.com/Edu15/recipe-golang-webservice/domain"
-	"github.com/Edu15/recipe-golang-webservice/render"
-	"github.com/Edu15/recipe-golang-webservice/repository"
+	"github.com/Edu15/recipe-golang-webservice/src/domain"
+	"github.com/Edu15/recipe-golang-webservice/src/render"
+	"github.com/Edu15/recipe-golang-webservice/src/repository"
 )
 
 // RecipeService provides use case methods to fetch and manipulate recipes from a repository.
@@ -16,8 +15,6 @@ type RecipeService struct {
 	repo     repository.Interface
 	renderer render.Interface
 }
-
-var templates = template.Must(template.ParseFiles("./tmpl/edit-recipe.html", "./tmpl/view-recipe.html", "./tmpl/recipe-list.html", "./tmpl/new-recipe.html"))
 
 // NewRecipeService creates a new instance o RecipeService injecting a repository.
 func NewRecipeService() *RecipeService {
