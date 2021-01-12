@@ -7,7 +7,7 @@ import (
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
 )
 
-// Renderer implements render.Interface to render HTML pages
+// Renderer implements render.Interface to render HTML pages.
 type Renderer struct{}
 
 const (
@@ -27,7 +27,7 @@ var templates = template.Must(
 	),
 )
 
-// RenderRecipeList renders a HTML page containing a list of recipes
+// RenderRecipeList renders a HTML page containing a list of recipes.
 func (Renderer) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]domain.RecipePreview) {
 	err := templates.ExecuteTemplate(w, listRecipeTemplate, recipePreviews)
 	if err != nil {
@@ -36,7 +36,7 @@ func (Renderer) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]domain
 	}
 }
 
-// RenderRecipe renders a HTML page containing infomation about a specific recipe
+// RenderRecipe renders a HTML page containing infomation about a specific recipe.
 func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
 	err := templates.ExecuteTemplate(w, viewRecipeTemplate, recipe)
 	if err != nil {
@@ -45,7 +45,7 @@ func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
 	}
 }
 
-// RenderRecipeEditor renders a HTML page containing a form to edit information from a specific recipe
+// RenderRecipeEditor renders a HTML page containing a form to edit information from a specific recipe.
 func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipe *domain.Recipe) {
 	err := templates.ExecuteTemplate(w, editRecipeTemplate, recipe)
 	if err != nil {
@@ -54,7 +54,7 @@ func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipe *domain.Recipe)
 	}
 }
 
-// RenderNewRecipeForm renders a HTML page containing an empty form to create a new recipe
+// RenderNewRecipeForm renders a HTML page containing an empty form to create a new recipe.
 func (Renderer) RenderNewRecipeForm(w http.ResponseWriter) {
 	err := templates.ExecuteTemplate(w, newRecipeTemplate, nil)
 	if err != nil {
