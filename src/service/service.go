@@ -7,6 +7,7 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
 	"github.com/Edu15/recipe-golang-webservice/src/render"
+	"github.com/Edu15/recipe-golang-webservice/src/render/html"
 	"github.com/Edu15/recipe-golang-webservice/src/repository"
 )
 
@@ -21,7 +22,7 @@ func NewRecipeService() *RecipeService {
 	repository := repository.NewRepository()
 	return &RecipeService{
 		repo:     repository,
-		renderer: render.HTMLRenderer{},
+		renderer: html.Renderer{},
 	}
 }
 
