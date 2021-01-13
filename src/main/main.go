@@ -11,7 +11,7 @@ import (
 	"github.com/Edu15/recipe-golang-webservice/src/service"
 )
 
-var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|home)/?([a-zA-Z0-9]+)?$")
+var validPath = regexp.MustCompile("^/(view|edit|create|update|new|delete|all)/?([a-zA-Z0-9]+)?$")
 var recipeService *service.RecipeService
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -33,7 +33,7 @@ func main() {
 	}
 	recipeService = service.NewRecipeService(responseFormat)
 
-	http.HandleFunc("/home/", makeHandler(recipeService.ListRecipes))
+	http.HandleFunc("/all/", makeHandler(recipeService.ListRecipes))
 	http.HandleFunc("/view/", makeHandler(recipeService.ViewRecipe))
 	http.HandleFunc("/edit/", makeHandler(recipeService.EditRecipe))
 	http.HandleFunc("/new/", makeHandler(recipeService.NewRecipe))
