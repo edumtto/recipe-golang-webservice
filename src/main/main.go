@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 
+	"github.com/Edu15/recipe-golang-webservice/src/domain"
 	"github.com/Edu15/recipe-golang-webservice/src/service"
 )
 
@@ -25,7 +27,11 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 }
 
 func main() {
-	recipeService = service.NewRecipeService()
+	responseFormat := domain.HTML
+	if len(os.Args) > 1 && os.Args[1] == "json" {
+		responseFormat = domain.JSON
+	}
+	recipeService = service.NewRecipeService(responseFormat)
 
 	http.HandleFunc("/home/", makeHandler(recipeService.ListRecipes))
 	http.HandleFunc("/view/", makeHandler(recipeService.ViewRecipe))

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
 	"github.com/Edu15/recipe-golang-webservice/src/render"
+	"github.com/Edu15/recipe-golang-webservice/src/render/html"
 	"github.com/Edu15/recipe-golang-webservice/src/render/json"
 	"github.com/Edu15/recipe-golang-webservice/src/repository"
 )
@@ -18,11 +19,19 @@ type RecipeService struct {
 }
 
 // NewRecipeService creates a new instance o RecipeService injecting a repository.
-func NewRecipeService() *RecipeService {
+func NewRecipeService(format domain.ResponseFormat) *RecipeService {
 	repository := repository.NewRepository()
+
+	var renderer render.Interface
+	if format == domain.JSON {
+		renderer = json.Renderer{}
+	} else {
+		renderer = html.Renderer{}
+	}
+
 	return &RecipeService{
 		repo:     repository,
-		renderer: json.Renderer{},
+		renderer: renderer,
 	}
 }
 
