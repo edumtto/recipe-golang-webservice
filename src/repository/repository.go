@@ -33,6 +33,8 @@ type Interface interface {
 	UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error
 	InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error)
 	RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error
+	FetchCategories() (*[]domain.RecipeCategory, error)
+	FetchDifficulties() (*[]domain.RecipeDifficulty, error)
 }
 
 // Repository struct
@@ -210,4 +212,46 @@ func (repo Repository) RemoveRecipe(w http.ResponseWriter, r *http.Request, id i
 	sqlStatement := `DELETE FROM recipe WHERE id = $1;`
 	_, err := repo.db.Exec(sqlStatement, id)
 	return err
+}
+
+func (repo Repository) FetchCategories() (*[]domain.RecipeCategory, error) {
+	sqlStatement := `SELECT id, name FROM category;`
+	rows, err := repo.db.Query(sqlStatement)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+	var categories []domain.RecipeCategory
+
+	for rows.Next() {
+		var category domain.RecipeCategory
+		if err := rows.Scan(&category.ID, &category.Name); err != nil {
+			log.Fatal(err)
+		}
+		categories = append(categories, category)
+	}
+
+	return &categories, err
+}
+
+func (repo Repository) FetchDifficulties() (*[]domain.RecipeDifficulty, error) {
+	sqlStatement := `SELECT id, name FROM dificulty;`
+	rows, err := repo.db.Query(sqlStatement)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+	var dificulties []domain.RecipeDifficulty
+
+	for rows.Next() {
+		var dificulty domain.RecipeDifficulty
+		if err := rows.Scan(&dificulty.ID, &dificulty.Name); err != nil {
+			log.Fatal(err)
+		}
+		dificulties = append(dificulties, dificulty)
+	}
+
+	return &dificulties, err
 }

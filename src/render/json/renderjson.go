@@ -8,6 +8,11 @@ import (
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
 )
 
+type selectableValues struct {
+	Categories   []domain.RecipeCategory
+	Difficulties []domain.RecipeDifficulty
+}
+
 // Renderer implements render.Interface to render JSON pages.
 type Renderer struct{}
 
@@ -34,7 +39,26 @@ func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
 
 // RenderRecipeEditor renders a JSON containing infomation about a specific recipe
 // and the available values for selectable fields.
-func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipe *domain.Recipe) {}
+func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
+	b, err := json.Marshal(recipeForm)
+	fmt.Fprint(w, string(b))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
 
 // RenderNewRecipeForm renders a JSON containing the available values for selectable fields.
-func (Renderer) RenderNewRecipeForm(w http.ResponseWriter) {}
+func (Renderer) RenderNewRecipeForm(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
+	selectableVals := selectableValues{
+		Categories:   recipeForm.Categories,
+		Difficulties: recipeForm.Difficulties,
+	}
+
+	b, err := json.Marshal(selectableVals)
+	fmt.Fprint(w, string(b))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

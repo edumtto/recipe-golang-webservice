@@ -80,12 +80,25 @@ func (service *RecipeService) EditRecipe(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	service.renderer.RenderRecipeEditor(w, recipe)
+	recipeForm, err := fetchFormFieldValues(service.repo)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	recipeForm.Recipe = *recipe
+	service.renderer.RenderRecipeEditor(w, recipeForm)
 }
 
 // NewRecipe renders a form to input information for a new recipe.
 func (service *RecipeService) NewRecipe(w http.ResponseWriter, r *http.Request, id string) {
-	service.renderer.RenderNewRecipeForm(w)
+	recipeForm, err := fetchFormFieldValues(service.repo)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	service.renderer.RenderNewRecipeForm(w, recipeForm)
 }
 
 // CreateRecipe persists a specified new recipe on the database.
@@ -160,4 +173,24 @@ func fetchFullRecipe(recipeID int, repo repository.Interface) (*domain.Recipe, e
 	recipe.Dificulty.Name = dificulty.Name
 
 	return recipe, nil
+}
+
+func fetchFormFieldValues(repo repository.Interface) (*domain.RecipeForm, error) {
+	var recipeForm domain.RecipeForm
+
+	categories, err := repo.FetchCategories()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	recipeForm.Categories = *categories
+
+	difficulties, err := repo.FetchDifficulties()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	recipeForm.Difficulties = *difficulties
+
+	return &recipeForm, nil
 }

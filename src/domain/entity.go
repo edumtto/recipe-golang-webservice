@@ -42,3 +42,10 @@ type RecipePreview struct {
 	Title       string
 	Description string
 }
+
+// RecipeForm struct
+type RecipeForm struct {
+	Recipe       Recipe
+	Categories   []RecipeCategory
+	Difficulties []RecipeDifficulty
+}

@@ -46,8 +46,9 @@ func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
 }
 
 // RenderRecipeEditor renders a HTML page containing a form to edit information from a specific recipe.
-func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipe *domain.Recipe) {
-	err := templates.ExecuteTemplate(w, editRecipeTemplate, recipe)
+func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
+	// TODO: Use recipeForm to render the available selectable options for category and difficulty
+	err := templates.ExecuteTemplate(w, editRecipeTemplate, recipeForm.Recipe)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -55,7 +56,7 @@ func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipe *domain.Recipe)
 }
 
 // RenderNewRecipeForm renders a HTML page containing an empty form to create a new recipe.
-func (Renderer) RenderNewRecipeForm(w http.ResponseWriter) {
+func (Renderer) RenderNewRecipeForm(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
 	err := templates.ExecuteTemplate(w, newRecipeTemplate, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
