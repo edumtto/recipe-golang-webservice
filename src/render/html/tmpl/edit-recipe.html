@@ -8,11 +8,11 @@
 <!-- Body -->
 <body>
 
-<p><a href="/all">HOME</a></p>
+<p><a href="/recipes">HOME</a></p>
 
 <h1>Editando Receita</h1>
 
-<form action="/update/{{.ID}}" method="POST">
+<form action="/update/{{.ID}}" method="GET">
     <label for="title">Título:</label>
     <input type="text" id="title" name="title" size="80" value="{{.Title}}"></br></br>
 

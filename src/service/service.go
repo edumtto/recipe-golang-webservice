@@ -16,6 +16,7 @@ import (
 type RecipeService struct {
 	repo     repository.Interface
 	renderer render.Interface
+	format   domain.ResponseFormat
 }
 
 // NewRecipeService creates a new instance o RecipeService injecting a repository.
@@ -32,6 +33,7 @@ func NewRecipeService(format domain.ResponseFormat) *RecipeService {
 	return &RecipeService{
 		repo:     repository,
 		renderer: renderer,
+		format:   format,
 	}
 }
 
@@ -114,10 +116,13 @@ func (service *RecipeService) NewRecipe(w http.ResponseWriter, r *http.Request, 
 func (service *RecipeService) CreateRecipe(w http.ResponseWriter, r *http.Request, id string) {
 	insertedID, err := service.repo.InsertRecipe(w, r)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-	url := fmt.Sprintf("/view/%d", insertedID)
-	http.Redirect(w, r, url, http.StatusFound)
+
+	if service.format == domain.HTML {
+		url := fmt.Sprintf("/recipes/%d", insertedID)
+		http.Redirect(w, r, url, http.StatusFound)
+	}
 }
 
 // UpdateRecipe updates all information from a altered recipe on the database.
@@ -138,7 +143,9 @@ func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Reques
 		panic(err)
 	}
 
-	http.Redirect(w, r, "/view/"+id, http.StatusFound)
+	if service.format == domain.HTML {
+		http.Redirect(w, r, "/recipes/"+id, http.StatusFound)
+	}
 }
 
 // DeleteRecipe removes all information from a specified recipe from the database.
@@ -154,7 +161,10 @@ func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/home", http.StatusFound)
+
+	if service.format == domain.HTML {
+		http.Redirect(w, r, "/recipes", http.StatusFound)
+	}
 }
 
 func fetchFullRecipe(recipeID int, repo repository.Interface) (*domain.Recipe, error) {

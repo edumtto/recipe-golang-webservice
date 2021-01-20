@@ -198,13 +198,14 @@ func (repo Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int
 	categoryID, _ := strconv.Atoi(r.FormValue("category"))
 	difficultyID, _ := strconv.Atoi(r.FormValue("difficulty"))
 	preparationTime, _ := strconv.Atoi(r.FormValue("preparation-time"))
-	serving := r.FormValue("serving")
+	serving, _ := strconv.Atoi(r.FormValue("serving"))
 	ingredients := r.FormValue("ingredients")
 	steps := r.FormValue("steps")
 	imageURL := r.FormValue("imgURL")
 	var id int
 	err := repo.db.QueryRow(sqlStatement, title, description, 2, categoryID, difficultyID, preparationTime, serving, ingredients, steps, imageURL).Scan(&id)
-	fmt.Println(id)
+	fmt.Println("inserted with id = " + title)
+	fmt.Println(preparationTime)
 	return id, err
 }
 
