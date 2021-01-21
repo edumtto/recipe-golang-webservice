@@ -74,12 +74,12 @@ CREATE TABLE category (
 
 INSERT INTO category (name) VALUES('Entradas');
 INSERT INTO category (name) VALUES('Bebidas');
-INSERT INTO category (name) VALUES('Sopas');
+INSERT INTO category (name) VALUES('Sopas e caldos');
 INSERT INTO category (name) VALUES('Saladas');
 INSERT INTO category (name) VALUES('Pratos principais');
-INSERT INTO category (name) VALUES('Pães');
-INSERT INTO category (name) VALUES('Sobremesas');
-INSERT INTO category (name) VALUES('Diversas');
+INSERT INTO category (name) VALUES('Pães e bolos');
+INSERT INTO category (name) VALUES('Doces e sobremesas');
+INSERT INTO category (name) VALUES('Diversos');
 // "appetizers, "beverage", "soup", "salad", "main_dish", "bread", "dessert", "miscellaneous"
 
 -----------------------------------------------------------------------

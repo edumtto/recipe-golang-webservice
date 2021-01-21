@@ -67,6 +67,7 @@ func connectWithDatabase() *sql.DB {
 	return db
 }
 
+// FetchRecipe returns the recipe with the inputed ID, if it exists.
 func (repo Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
 	sqlStatement := `SELECT id, title, description, author_id, category_id, dificulty_id, rating,
 	preparation_time, serving, ingredients, steps, access_count, image, published_date
@@ -102,6 +103,7 @@ func formatDate(input time.Time) string {
 	return t.Format("02/Jan/2006")
 }
 
+// FetchAuthor returns the author with the inputed ID, if it exists.
 func (repo Repository) FetchAuthor(ID int) (*domain.RecipeAuthor, error) {
 	var author domain.RecipeAuthor
 
@@ -119,6 +121,7 @@ func (repo Repository) FetchAuthor(ID int) (*domain.RecipeAuthor, error) {
 	}
 }
 
+// FetchCategory returns the category with the inputed ID, if it exists.
 func (repo Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
 	var category domain.RecipeCategory
 
@@ -136,6 +139,7 @@ func (repo Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
 	}
 }
 
+// FetchDificulty returns the dificulty with the inputed ID, if it exists.
 func (repo Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error) {
 	var dificulty domain.RecipeDifficulty
 
@@ -153,6 +157,7 @@ func (repo Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error) 
 	}
 }
 
+// FetchRecipePreviews returns a list with short descriptions for each recipe.
 func (repo Repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error) {
 	sqlStatement := `SELECT id, title, description FROM recipe LIMIT $1;`
 	rows, err := repo.db.Query(sqlStatement, 10)
@@ -174,6 +179,7 @@ func (repo Repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Reques
 	return &previews, err
 }
 
+// UpdateRecipe updates the information related to a recipe with the inputed ID, if it exists.
 func (repo Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	sqlStatement := `UPDATE recipe 
 	SET title = $2, description = $3, preparation_time = $4, serving = $5, image =$6
@@ -187,6 +193,7 @@ func (repo Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id i
 	return err
 }
 
+// InsertRecipe adds a new recipe in the repository.
 func (repo Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
 	sqlStatement := `
 	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
@@ -202,19 +209,20 @@ func (repo Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int
 	ingredients := r.FormValue("ingredients")
 	steps := r.FormValue("steps")
 	imageURL := r.FormValue("imgURL")
+
 	var id int
 	err := repo.db.QueryRow(sqlStatement, title, description, 2, categoryID, difficultyID, preparationTime, serving, ingredients, steps, imageURL).Scan(&id)
-	fmt.Println("inserted with id = " + title)
-	fmt.Println(preparationTime)
 	return id, err
 }
 
+// RemoveRecipe removes a recipe from the repository.
 func (repo Repository) RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error {
 	sqlStatement := `DELETE FROM recipe WHERE id = $1;`
 	_, err := repo.db.Exec(sqlStatement, id)
 	return err
 }
 
+// FetchCategories returns a list of category options.
 func (repo Repository) FetchCategories() (*[]domain.RecipeCategory, error) {
 	sqlStatement := `SELECT id, name FROM category;`
 	rows, err := repo.db.Query(sqlStatement)
@@ -236,6 +244,7 @@ func (repo Repository) FetchCategories() (*[]domain.RecipeCategory, error) {
 	return &categories, err
 }
 
+// FetchDifficulties returns a list of difficult options.
 func (repo Repository) FetchDifficulties() (*[]domain.RecipeDifficulty, error) {
 	sqlStatement := `SELECT id, name FROM dificulty;`
 	rows, err := repo.db.Query(sqlStatement)

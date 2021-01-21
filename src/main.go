@@ -27,8 +27,6 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 }
 
 func recipesHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Method)
-
 	m := validPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		fmt.Println("Invalid path!")
