@@ -185,11 +185,11 @@ func fetchFullRecipe(recipeID int, repo repository.Interface) (*domain.Recipe, e
 	}
 	recipe.Category.Name = category.Name
 
-	dificulty, err := repo.FetchDificulty(recipe.Dificulty.ID)
+	dificulty, err := repo.FetchDifficulty(recipe.Difficulty.ID)
 	if err != nil {
 		return nil, err
 	}
-	recipe.Dificulty.Name = dificulty.Name
+	recipe.Difficulty.Name = dificulty.Name
 
 	return recipe, nil
 }

@@ -1,10 +1,16 @@
+psql -U postgres -d recipes_db  
+psql -U edu recipes_db
+
+backup:
+pg_dump -U postgres recipes_db > ~/recipes_db.bak
+
 CREATE TABLE recipe (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     author_id SERIAL REFERENCES author(id),
     category_id SERIAL REFERENCES category(id),
-    dificulty_id SERIAL REFERENCES dificulty(id),
+    difficulty_id SERIAL REFERENCES difficulty(id),
     rating INT NOT NULL DEFAULT 0 CHECK (rating>=0 AND rating <=10),
     preparation_time INT NOT NULL CHECK (preparation_time>0),
     serving INT NOT NULL CHECK (serving>0),
@@ -20,7 +26,7 @@ ADD image TEXT;
 
 select published_date, now() - published_date as diff from recipe ;
 
-INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image) 
+INSERT INTO recipe (title, description, author_id, category_id, difficulty_id, preparation_time, serving, ingredients, steps, image) 
 VALUES (
     'Brigadeiro',
     'O brigadeiro é um doce genuinamente brasileiro. Um orgulho só! Essa delícia de chocolate faz a alegria da criançada e de muita gente grande em qualquer circunstância.',
@@ -34,7 +40,7 @@ VALUES (
     'https://cdn.panelinha.com.br/receita/958014000000-Brigadeiro.jpg'
 );
 
-INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps) 
+INSERT INTO recipe (title, description, author_id, category_id, difficulty_id, preparation_time, serving, ingredients, steps) 
 VALUES (
     'Bolo comum',
     'Receita de bolo padrão.',
@@ -43,7 +49,7 @@ VALUES (
     'Mixture tudo e leve ao forno.'
 );
 
-INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image) 
+INSERT INTO recipe (title, description, author_id, category_id, difficulty_id, preparation_time, serving, ingredients, steps, image) 
 VALUES (
     'Pudim de doce de leite',
     'Receita de bolo padrão.',
@@ -83,11 +89,11 @@ INSERT INTO category (name) VALUES('Diversos');
 // "appetizers, "beverage", "soup", "salad", "main_dish", "bread", "dessert", "miscellaneous"
 
 -----------------------------------------------------------------------
-CREATE TABLE dificulty (
+CREATE TABLE difficulty (
     id SERIAL PRIMARY KEY,
     name TEXT
 );
 
-INSERT INTO dificulty (name) VALUES('Fácil');
-INSERT INTO dificulty (name) VALUES('Moderado');
-INSERT INTO dificulty (name) VALUES('Difícil');
+INSERT INTO difficulty (name) VALUES('Fácil');
+INSERT INTO difficulty (name) VALUES('Moderado');
+INSERT INTO difficulty (name) VALUES('Difícil');

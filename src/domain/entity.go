@@ -32,7 +32,7 @@ type Recipe struct {
 	Description     string
 	Author          RecipeAuthor
 	Category        RecipeCategory
-	Dificulty       RecipeDifficulty
+	Difficulty      RecipeDifficulty
 	Rating          int
 	PreparationTime int
 	Serving         int

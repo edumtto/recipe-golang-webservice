@@ -28,7 +28,7 @@ type Interface interface {
 	FetchRecipe(recipeID int) (*domain.Recipe, error)
 	FetchAuthor(ID int) (*domain.RecipeAuthor, error)
 	FetchCategory(ID int) (*domain.RecipeCategory, error)
-	FetchDificulty(ID int) (*domain.RecipeDifficulty, error)
+	FetchDifficulty(ID int) (*domain.RecipeDifficulty, error)
 	FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error)
 	UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error
 	InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error)
@@ -69,7 +69,7 @@ func connectWithDatabase() *sql.DB {
 
 // FetchRecipe returns the recipe with the inputed ID, if it exists.
 func (repo Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
-	sqlStatement := `SELECT id, title, description, author_id, category_id, dificulty_id, rating,
+	sqlStatement := `SELECT id, title, description, author_id, category_id, difficulty_id, rating,
 	preparation_time, serving, ingredients, steps, access_count, image, published_date
 	FROM recipe WHERE id=$1;`
 
@@ -79,7 +79,7 @@ func (repo Repository) FetchRecipe(recipeID int) (*domain.Recipe, error) {
 	var publishedDateTime time.Time
 
 	err := row.Scan(&recipe.ID, &recipe.Title, &recipe.Description, &recipe.Author.ID,
-		&recipe.Category.ID, &recipe.Dificulty.ID, &recipe.Rating, &recipe.PreparationTime,
+		&recipe.Category.ID, &recipe.Difficulty.ID, &recipe.Rating, &recipe.PreparationTime,
 		&recipe.Serving, &ingredients, &steps, &recipe.AccessCount,
 		&recipe.ImageURL, &publishedDateTime)
 
@@ -139,19 +139,19 @@ func (repo Repository) FetchCategory(ID int) (*domain.RecipeCategory, error) {
 	}
 }
 
-// FetchDificulty returns the dificulty with the inputed ID, if it exists.
-func (repo Repository) FetchDificulty(ID int) (*domain.RecipeDifficulty, error) {
-	var dificulty domain.RecipeDifficulty
+// FetchDifficulty returns the difficulty with the inputed ID, if it exists.
+func (repo Repository) FetchDifficulty(ID int) (*domain.RecipeDifficulty, error) {
+	var difficulty domain.RecipeDifficulty
 
-	sqlStatement := `SELECT id, name FROM dificulty WHERE id=$1;`
+	sqlStatement := `SELECT id, name FROM difficulty WHERE id=$1;`
 	row := repo.db.QueryRow(sqlStatement, ID)
-	err := row.Scan(&dificulty.ID, &dificulty.Name)
+	err := row.Scan(&difficulty.ID, &difficulty.Name)
 
 	switch err {
 	case sql.ErrNoRows:
 		return nil, nil
 	case nil:
-		return &dificulty, nil
+		return &difficulty, nil
 	default:
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (repo Repository) UpdateRecipe(w http.ResponseWriter, r *http.Request, id i
 // InsertRecipe adds a new recipe in the repository.
 func (repo Repository) InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error) {
 	sqlStatement := `
-	INSERT INTO recipe (title, description, author_id, category_id, dificulty_id, preparation_time, serving, ingredients, steps, image)
+	INSERT INTO recipe (title, description, author_id, category_id, difficulty_id, preparation_time, serving, ingredients, steps, image)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	RETURNING id;`
 
@@ -246,7 +246,7 @@ func (repo Repository) FetchCategories() (*[]domain.RecipeCategory, error) {
 
 // FetchDifficulties returns a list of difficult options.
 func (repo Repository) FetchDifficulties() (*[]domain.RecipeDifficulty, error) {
-	sqlStatement := `SELECT id, name FROM dificulty;`
+	sqlStatement := `SELECT id, name FROM difficulty;`
 	rows, err := repo.db.Query(sqlStatement)
 	if err != nil {
 		log.Fatal(err)
@@ -256,11 +256,11 @@ func (repo Repository) FetchDifficulties() (*[]domain.RecipeDifficulty, error) {
 	var dificulties []domain.RecipeDifficulty
 
 	for rows.Next() {
-		var dificulty domain.RecipeDifficulty
-		if err := rows.Scan(&dificulty.ID, &dificulty.Name); err != nil {
+		var difficulty domain.RecipeDifficulty
+		if err := rows.Scan(&difficulty.ID, &difficulty.Name); err != nil {
 			log.Fatal(err)
 		}
-		dificulties = append(dificulties, dificulty)
+		dificulties = append(dificulties, difficulty)
 	}
 
 	return &dificulties, err
