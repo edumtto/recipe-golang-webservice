@@ -38,7 +38,9 @@ func recipesHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		if recipeID != "" {
+		if recipeID == "form" {
+			recipeService.NewRecipe(w, r, "")
+		} else if recipeID != "" {
 			recipeService.ViewRecipe(w, r, recipeID)
 		} else {
 			recipeService.ListRecipes(w, r, "")
@@ -62,6 +64,7 @@ func recipesHandler(w http.ResponseWriter, r *http.Request) {
 
 POST /recipes to add a new recipe
 GET /recipes to fetch all existing recipes
+GET /recipes/form to fech a form to create a new recipe
 GET /recipes/{recipeId} to fetch a single recipe using its ID
 PUT /recipes/{recipeId} to update an existing recipe
 DELETE /recipes/{itemId} to delete a recipe
