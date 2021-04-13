@@ -7,11 +7,11 @@ import (
 	"regexp"
 
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/service"
+	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
 var validPath = regexp.MustCompile("^/(recipes|edit|new|create|update|delete)/?([a-zA-Z0-9]+)?$")
-var recipeService *service.RecipeService
+var recipeService *recipe.Service
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -34,13 +34,13 @@ GET /delete/{recipeId} to delete a recipe
 */
 
 func main() {
-	recipeService = service.NewRecipeService(domain.HTML)
+	recipeService = recipe.NewService(domain.HTML)
 
-	http.HandleFunc("/new/", makeHandler(recipeService.NewRecipe))
-	http.HandleFunc("/create/", makeHandler(recipeService.CreateRecipe))
-	http.HandleFunc("/edit/", makeHandler(recipeService.EditRecipe))
-	http.HandleFunc("/update/", makeHandler(recipeService.UpdateRecipe))
-	http.HandleFunc("/delete/", makeHandler(recipeService.DeleteRecipe))
+	http.HandleFunc("/new/", makeHandler(recipeService.New))
+	http.HandleFunc("/create/", makeHandler(recipeService.Create))
+	http.HandleFunc("/edit/", makeHandler(recipeService.Edit))
+	http.HandleFunc("/update/", makeHandler(recipeService.Update))
+	http.HandleFunc("/delete/", makeHandler(recipeService.Delete))
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

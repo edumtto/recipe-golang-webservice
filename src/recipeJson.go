@@ -7,11 +7,11 @@ import (
 	"regexp"
 
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/service"
+	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
 var validPath = regexp.MustCompile("^/(recipes|edit|new|create|update|delete)/?([a-zA-Z0-9]+)?$")
-var recipeService *service.RecipeService
+var recipeService *recipe.Service
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -38,21 +38,21 @@ func recipesHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		if recipeID == "form" {
-			recipeService.NewRecipe(w, r, "")
+			recipeService.New(w, r, "")
 		} else if recipeID != "" {
-			recipeService.ViewRecipe(w, r, recipeID)
+			recipeService.View(w, r, recipeID)
 		} else {
-			recipeService.ListRecipes(w, r, "")
+			recipeService.List(w, r, "")
 		}
 
 	case http.MethodPost:
-		recipeService.CreateRecipe(w, r, "")
+		recipeService.Create(w, r, "")
 
 	case http.MethodPut:
-		recipeService.UpdateRecipe(w, r, recipeID)
+		recipeService.Update(w, r, recipeID)
 
 	case http.MethodDelete:
-		recipeService.DeleteRecipe(w, r, recipeID)
+		recipeService.Delete(w, r, recipeID)
 
 	default:
 		http.NotFound(w, r)
@@ -69,7 +69,7 @@ DELETE /recipes/{itemId} to delete a recipe
 */
 
 func main() {
-	recipeService = service.NewRecipeService(domain.JSON)
+	recipeService = recipe.NewService(domain.JSON)
 
 	http.HandleFunc("/recipes/", recipesHandler)
 	fmt.Println("Service is running.")

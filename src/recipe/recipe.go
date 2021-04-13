@@ -1,4 +1,4 @@
-package service
+package recipe
 
 import (
 	"fmt"
@@ -13,14 +13,14 @@ import (
 )
 
 // RecipeService provides use case methods to fetch and manipulate recipes from a repository.
-type RecipeService struct {
+type Service struct {
 	repo     repository.Interface
 	renderer render.Interface
 	format   domain.ResponseFormat
 }
 
-// NewRecipeService creates a new instance o RecipeService injecting a repository.
-func NewRecipeService(format domain.ResponseFormat) *RecipeService {
+// NewService creates a new instance o RecipeService injecting a repository.
+func NewService(format domain.ResponseFormat) *Service {
 	repository := repository.NewRepository()
 
 	var renderer render.Interface
@@ -30,15 +30,15 @@ func NewRecipeService(format domain.ResponseFormat) *RecipeService {
 		renderer = html.Renderer{}
 	}
 
-	return &RecipeService{
+	return &Service{
 		repo:     repository,
 		renderer: renderer,
 		format:   format,
 	}
 }
 
-// ListRecipes fetches a list of all recipes and present a formated result.
-func (service *RecipeService) ListRecipes(w http.ResponseWriter, r *http.Request, id string) {
+// List fetches a list of all recipes and present a formated result.
+func (service *Service) List(w http.ResponseWriter, r *http.Request, id string) {
 	recipePreviews, err := service.repo.FetchRecipePreviews(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -48,15 +48,15 @@ func (service *RecipeService) ListRecipes(w http.ResponseWriter, r *http.Request
 	service.renderer.RenderRecipeList(w, recipePreviews)
 }
 
-// ViewRecipe fetches all information from recipe and present a formated result.
-func (service *RecipeService) ViewRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// View fetches all information from recipe and present a formated result.
+func (service *Service) View(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	recipe, err := fetchFullRecipe(recipeID, service.repo)
+	recipe, err := fetchFull(recipeID, service.repo)
 	if err != nil {
 		fmt.Println(err)
 		http.NotFound(w, r)
@@ -71,15 +71,15 @@ func (service *RecipeService) ViewRecipe(w http.ResponseWriter, r *http.Request,
 	service.renderer.RenderRecipe(w, recipe)
 }
 
-// EditRecipe fetches recipe and present a form to edit the stored recipe information.
-func (service *RecipeService) EditRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// Edit fetches recipe and present a form to edit the stored recipe information.
+func (service *Service) Edit(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	recipe, err := fetchFullRecipe(recipeID, service.repo)
+	recipe, err := fetchFull(recipeID, service.repo)
 	if err != nil {
 		fmt.Println(err)
 		http.NotFound(w, r)
@@ -101,8 +101,8 @@ func (service *RecipeService) EditRecipe(w http.ResponseWriter, r *http.Request,
 	service.renderer.RenderRecipeEditor(w, recipeForm)
 }
 
-// NewRecipe renders a form to input information for a new recipe.
-func (service *RecipeService) NewRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// New renders a form to input information for a new recipe.
+func (service *Service) New(w http.ResponseWriter, r *http.Request, id string) {
 	recipeForm, err := fetchFormFieldValues(service.repo)
 	if err != nil {
 		fmt.Println(err)
@@ -112,8 +112,8 @@ func (service *RecipeService) NewRecipe(w http.ResponseWriter, r *http.Request, 
 	service.renderer.RenderNewRecipeForm(w, recipeForm)
 }
 
-// CreateRecipe persists a specified new recipe on the database.
-func (service *RecipeService) CreateRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// Create persists a specified new recipe on the database.
+func (service *Service) Create(w http.ResponseWriter, r *http.Request, id string) {
 	insertedID, err := service.repo.InsertRecipe(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -125,8 +125,8 @@ func (service *RecipeService) CreateRecipe(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// UpdateRecipe updates all information from a altered recipe on the database.
-func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// Update updates all information from a altered recipe on the database.
+func (service *Service) Update(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
@@ -148,8 +148,8 @@ func (service *RecipeService) UpdateRecipe(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// DeleteRecipe removes all information from a specified recipe from the database.
-func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Request, id string) {
+// Delete removes all information from a specified recipe from the database.
+func (service *Service) Delete(w http.ResponseWriter, r *http.Request, id string) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		fmt.Println(err)
@@ -167,7 +167,7 @@ func (service *RecipeService) DeleteRecipe(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func fetchFullRecipe(recipeID int, repo repository.Interface) (*domain.Recipe, error) {
+func fetchFull(recipeID int, repo repository.Interface) (*domain.Recipe, error) {
 	recipe, err := repo.FetchRecipe(recipeID)
 	if err != nil {
 		return nil, err
