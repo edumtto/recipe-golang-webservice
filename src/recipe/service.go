@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
 	"github.com/Edu15/recipe-golang-webservice/src/render"
 	"github.com/Edu15/recipe-golang-webservice/src/render/html"
@@ -21,7 +22,7 @@ type Service struct {
 
 // NewService creates a new instance o RecipeService injecting a repository.
 func NewService(format domain.ResponseFormat) *Service {
-	repository := repository.NewRepository()
+	repository := repository.NewRepository(database.Connect())
 
 	var renderer render.Interface
 	if format == domain.JSON {
