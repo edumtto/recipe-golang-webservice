@@ -23,27 +23,13 @@ const (
 	dbname   = "recipes_db"
 )
 
-// Interface interface
-type Repository interface {
-	FetchRecipe(recipeID int) (*domain.Recipe, error)
-	FetchAuthor(ID int) (*domain.RecipeAuthor, error)
-	FetchCategory(ID int) (*domain.RecipeCategory, error)
-	FetchDifficulty(ID int) (*domain.RecipeDifficulty, error)
-	FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error)
-	UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error
-	InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error)
-	RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error
-	FetchCategories() (*[]domain.RecipeCategory, error)
-	FetchDifficulties() (*[]domain.RecipeDifficulty, error)
-}
-
 // repository struct
 type repository struct {
 	db *sql.DB
 }
 
 // NewRepository method
-func NewRepository(db *sql.DB) Repository {
+func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{
 		db: db,
 	}

@@ -7,15 +7,14 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/render"
 	"github.com/Edu15/recipe-golang-webservice/src/render/html"
 	"github.com/Edu15/recipe-golang-webservice/src/render/json"
 )
 
 // RecipeService provides use case methods to fetch and manipulate recipes from a repository.
 type Service struct {
-	repo     Repository
-	renderer render.Interface
+	repo     domain.Repository
+	renderer domain.Render
 	format   domain.ResponseFormat
 }
 
@@ -23,7 +22,7 @@ type Service struct {
 func NewService(format domain.ResponseFormat) *Service {
 	repository := NewRepository(database.Connect())
 
-	var renderer render.Interface
+	var renderer domain.Render
 	if format == domain.JSON {
 		renderer = json.Renderer{}
 	} else {
@@ -167,7 +166,7 @@ func (service *Service) Delete(w http.ResponseWriter, r *http.Request, id string
 	}
 }
 
-func fetchFull(recipeID int, repo Repository) (*domain.Recipe, error) {
+func fetchFull(recipeID int, repo domain.Repository) (*domain.Recipe, error) {
 	recipe, err := repo.FetchRecipe(recipeID)
 	if err != nil {
 		return nil, err
@@ -194,7 +193,7 @@ func fetchFull(recipeID int, repo Repository) (*domain.Recipe, error) {
 	return recipe, nil
 }
 
-func fetchFormFieldValues(repo Repository) (*domain.RecipeForm, error) {
+func fetchFormFieldValues(repo domain.Repository) (*domain.RecipeForm, error) {
 	var recipeForm domain.RecipeForm
 
 	categories, err := repo.FetchCategories()
