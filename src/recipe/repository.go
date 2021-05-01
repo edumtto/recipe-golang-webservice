@@ -1,4 +1,4 @@
-package repository
+package recipe
 
 import (
 	"database/sql"
@@ -24,7 +24,7 @@ const (
 )
 
 // Interface interface
-type Interface interface {
+type Repository interface {
 	FetchRecipe(recipeID int) (*domain.Recipe, error)
 	FetchAuthor(ID int) (*domain.RecipeAuthor, error)
 	FetchCategory(ID int) (*domain.RecipeCategory, error)
@@ -43,7 +43,7 @@ type repository struct {
 }
 
 // NewRepository method
-func NewRepository(db *sql.DB) Interface {
+func NewRepository(db *sql.DB) Repository {
 	return &repository{
 		db: db,
 	}
