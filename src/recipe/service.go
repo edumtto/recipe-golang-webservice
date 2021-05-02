@@ -7,8 +7,8 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/render/html"
-	"github.com/Edu15/recipe-golang-webservice/src/render/json"
+	"github.com/Edu15/recipe-golang-webservice/src/presenter/html"
+	"github.com/Edu15/recipe-golang-webservice/src/presenter/json"
 )
 
 // RecipeService provides use case methods to fetch and manipulate recipes from a repository.

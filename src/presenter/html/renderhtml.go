@@ -11,7 +11,7 @@ import (
 type Renderer struct{}
 
 const (
-	templatePath       = "../render/html/tmpl/"
+	templatePath       = "../presenter/html/tmpl/"
 	listRecipeTemplate = "recipe-list.html"
 	viewRecipeTemplate = "view-recipe.html"
 	editRecipeTemplate = "edit-recipe.html"
