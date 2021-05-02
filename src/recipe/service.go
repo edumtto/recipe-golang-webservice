@@ -20,7 +20,7 @@ type Service struct {
 
 // NewService creates a new instance o RecipeService injecting a repository.
 func NewService(format domain.ResponseFormat) *Service {
-	repository := NewRepository(database.Connect())
+	repository := database.NewRepository(database.Connect())
 
 	var renderer domain.Render
 	if format == domain.JSON {

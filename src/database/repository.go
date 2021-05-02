@@ -1,4 +1,4 @@
-package recipe
+package database
 
 import (
 	"database/sql"
@@ -13,14 +13,6 @@ import (
 
 	// Postgres driver
 	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "edu"
-	password = "1234"
-	dbname   = "recipes_db"
 )
 
 // repository struct
