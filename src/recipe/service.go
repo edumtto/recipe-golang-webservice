@@ -11,7 +11,7 @@ import (
 	"github.com/Edu15/recipe-golang-webservice/src/presenter/json"
 )
 
-// RecipeService provides use case methods to fetch and manipulate recipes from a repository.
+// RecipeService is a http hander that provides use case methods to fetch and manipulate recipes from a repository.
 type Service struct {
 	repo     domain.Repository
 	renderer domain.Render
