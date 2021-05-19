@@ -25,7 +25,7 @@ func NewService(repository domain.Repository, renderer domain.Render, format dom
 }
 
 // List fetches a list of all recipes and present a formated result.
-func (service *Service) List(w http.ResponseWriter, r *http.Request, id string) {
+func (service *Service) List(w http.ResponseWriter, r *http.Request) {
 	recipePreviews, err := service.repo.FetchRecipePreviews()
 	if err != nil {
 		fmt.Println(err)
@@ -89,7 +89,7 @@ func (service *Service) Edit(w http.ResponseWriter, r *http.Request, id string) 
 }
 
 // New renders a form to input information for a new recipe.
-func (service *Service) New(w http.ResponseWriter, r *http.Request, id string) {
+func (service *Service) New(w http.ResponseWriter, r *http.Request) {
 	recipeForm, err := fetchFormFieldValues(service.repo)
 	if err != nil {
 		fmt.Println(err)
@@ -100,7 +100,7 @@ func (service *Service) New(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 // Create persists a specified new recipe on the database.
-func (service *Service) Create(w http.ResponseWriter, r *http.Request, id string) {
+func (service *Service) Create(w http.ResponseWriter, r *http.Request) {
 	insertedID, err := service.repo.InsertRecipe(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -150,7 +150,7 @@ func (service *Service) Delete(w http.ResponseWriter, r *http.Request, id string
 	}
 
 	if service.format == domain.HTML {
-		http.Redirect(w, r, "/recipes", http.StatusFound)
+		http.Redirect(w, r, "/recipes/all/", http.StatusFound)
 	}
 }
 

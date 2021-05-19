@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 
 	"github.com/Edu15/recipe-golang-webservice/src/database"
@@ -14,14 +13,16 @@ import (
 	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
-var validPath = regexp.MustCompile("^/(recipes|edit|new|create|update|delete)/?([a-zA-Z0-9]+)?$")
-var recipeService *recipe.Service
+var validWebPath = regexp.MustCompile("^/recipes/(all|edit|new|create|update|delete)?/?([a-zA-Z0-9]+)?$")
+var validApiPath = regexp.MustCompile("^/api/recipes/?([a-zA-Z0-9]+)?$")
+var webService *recipe.Service
+var apiService *recipe.Service
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func makeWebHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
+		m := validWebPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
-			fmt.Println("Invalid path!")
+			fmt.Println("Invalid web path!")
 			http.NotFound(w, r)
 			return
 		}
@@ -29,34 +30,35 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	}
 }
 
-func recipesHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
+func recipesApiHandler(w http.ResponseWriter, r *http.Request) {
+	m := validApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
-		fmt.Println("Invalid path!")
+		fmt.Println("Invalid api path!")
 		http.NotFound(w, r)
 		return
 	}
 
-	recipeID := m[2]
+	var recipeID = ""
+	if len(m) > 1 {
+		recipeID = m[1]
+	}
 
 	switch r.Method {
 	case http.MethodGet:
-		if recipeID == "form" {
-			recipeService.New(w, r, "")
-		} else if recipeID != "" {
-			recipeService.View(w, r, recipeID)
+		if recipeID != "" {
+			apiService.View(w, r, recipeID)
 		} else {
-			recipeService.List(w, r, "")
+			apiService.List(w, r)
 		}
 
 	case http.MethodPost:
-		recipeService.Create(w, r, "")
+		apiService.Create(w, r)
 
 	case http.MethodPut:
-		recipeService.Update(w, r, recipeID)
+		apiService.Update(w, r, recipeID)
 
 	case http.MethodDelete:
-		recipeService.Delete(w, r, recipeID)
+		apiService.Delete(w, r, recipeID)
 
 	default:
 		http.NotFound(w, r)
@@ -82,25 +84,21 @@ GET /delete/{recipeId} to delete a recipe
 */
 
 func main() {
-	var responseFormat domain.ResponseFormat
-	var renderer domain.Render
-	if len(os.Args) > 1 && os.Args[1] == "html" {
-		renderer = html.Renderer{}
-		responseFormat = domain.HTML
-	} else {
-		renderer = json.Renderer{}
-		responseFormat = domain.JSON
-	}
-
 	repository := database.NewRepository(database.Connect())
-	recipeService = recipe.NewService(repository, renderer, responseFormat)
+	webService = recipe.NewService(repository, html.Renderer{}, domain.HTML)
+	apiService = recipe.NewService(repository, json.Renderer{}, domain.JSON)
 
-	http.HandleFunc("/recipes/", recipesHandler)
-	http.HandleFunc("/new/", makeHandler(recipeService.New))
-	http.HandleFunc("/create/", makeHandler(recipeService.Create))
-	http.HandleFunc("/edit/", makeHandler(recipeService.Edit))
-	http.HandleFunc("/update/", makeHandler(recipeService.Update))
-	http.HandleFunc("/delete/", makeHandler(recipeService.Delete))
+	http.HandleFunc("/api/recipes/", recipesApiHandler)
+	http.HandleFunc("/api/recipes/form/", apiService.New)
+
+	http.HandleFunc("/recipes/", makeWebHandler(webService.View))
+	http.HandleFunc("/recipes/all/", webService.List)
+	http.HandleFunc("/recipes/new/", webService.New)
+	http.HandleFunc("/recipes/create/", webService.Create)
+	http.HandleFunc("/recipes/edit/", makeWebHandler(webService.Edit))
+	http.HandleFunc("/recipes/update/", makeWebHandler(webService.Update))
+	http.HandleFunc("/recipes/delete/", makeWebHandler(webService.Delete))
+
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

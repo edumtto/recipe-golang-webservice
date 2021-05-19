@@ -8,7 +8,7 @@
 <!-- Body -->
 <body>
 
-<p><a href="/recipes">HOME</a></p>
+<p><a href="/recipes/all">HOME</a></p>
 
 
 <h1>{{.Title}}</h1>
@@ -20,7 +20,7 @@
     <img src="{{.ImageURL}}" height="150px"></img>
 {{end}}
 
-<p>[<a href="/edit/{{.ID}}">editar</a>]</p>
+<p>[<a href="/recipes/edit/{{.ID}}">editar</a>]</p>
 
 <div>{{printf "%s" .Description}}</div>
 
@@ -39,6 +39,6 @@
 </ol>
 
 <br><br>
-<p>[<a href="/delete/{{.ID}}">Remover receita</a>]</p>
+<p>[<a href="/recipes/delete/{{.ID}}">Remover receita</a>]</p>
 
 </body>
