@@ -10,7 +10,7 @@ type Repository interface {
 	FetchAuthor(ID int) (*RecipeAuthor, error)
 	FetchCategory(ID int) (*RecipeCategory, error)
 	FetchDifficulty(ID int) (*RecipeDifficulty, error)
-	FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]RecipePreview, error)
+	FetchRecipePreviews() (*[]RecipePreview, error)
 	UpdateRecipe(w http.ResponseWriter, r *http.Request, id int) error
 	InsertRecipe(w http.ResponseWriter, r *http.Request) (int, error)
 	RemoveRecipe(w http.ResponseWriter, r *http.Request, id int) error

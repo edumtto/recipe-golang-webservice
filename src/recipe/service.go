@@ -5,10 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/presenter/html"
-	"github.com/Edu15/recipe-golang-webservice/src/presenter/json"
 )
 
 // RecipeService is a http hander that provides use case methods to fetch and manipulate recipes from a repository.
@@ -18,17 +15,8 @@ type Service struct {
 	format   domain.ResponseFormat
 }
 
-// NewService creates a new instance o RecipeService injecting a repository.
-func NewService(format domain.ResponseFormat) *Service {
-	repository := database.NewRepository(database.Connect())
-
-	var renderer domain.Render
-	if format == domain.JSON {
-		renderer = json.Renderer{}
-	} else {
-		renderer = html.Renderer{}
-	}
-
+// NewService2 creates a new instance o RecipeService injecting a repository.
+func NewService(repository domain.Repository, renderer domain.Render, format domain.ResponseFormat) *Service {
 	return &Service{
 		repo:     repository,
 		renderer: renderer,
@@ -38,7 +26,7 @@ func NewService(format domain.ResponseFormat) *Service {
 
 // List fetches a list of all recipes and present a formated result.
 func (service *Service) List(w http.ResponseWriter, r *http.Request, id string) {
-	recipePreviews, err := service.repo.FetchRecipePreviews(w, r)
+	recipePreviews, err := service.repo.FetchRecipePreviews()
 	if err != nil {
 		fmt.Println(err)
 		return

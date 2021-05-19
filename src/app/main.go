@@ -7,7 +7,10 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
+	"github.com/Edu15/recipe-golang-webservice/src/presenter/html"
+	"github.com/Edu15/recipe-golang-webservice/src/presenter/json"
 	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
@@ -79,11 +82,18 @@ GET /delete/{recipeId} to delete a recipe
 */
 
 func main() {
-	responseFormat := domain.JSON
+	var responseFormat domain.ResponseFormat
+	var renderer domain.Render
 	if len(os.Args) > 1 && os.Args[1] == "html" {
+		renderer = html.Renderer{}
 		responseFormat = domain.HTML
+	} else {
+		renderer = json.Renderer{}
+		responseFormat = domain.JSON
 	}
-	recipeService = recipe.NewService(responseFormat)
+
+	repository := database.NewRepository(database.Connect())
+	recipeService = recipe.NewService(repository, renderer, responseFormat)
 
 	http.HandleFunc("/recipes/", recipesHandler)
 	http.HandleFunc("/new/", makeHandler(recipeService.New))

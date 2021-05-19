@@ -133,7 +133,7 @@ func (repo repository) FetchDifficulty(ID int) (*domain.RecipeDifficulty, error)
 }
 
 // FetchRecipePreviews returns a list with short descriptions for each recipe.
-func (repo repository) FetchRecipePreviews(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error) {
+func (repo repository) FetchRecipePreviews() (*[]domain.RecipePreview, error) {
 	sqlStatement := `SELECT id, title, description, image FROM recipe LIMIT $1;`
 	rows, err := repo.db.Query(sqlStatement, 10)
 	if err != nil {
