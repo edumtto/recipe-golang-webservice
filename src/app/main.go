@@ -15,8 +15,8 @@ import (
 
 var validWebPath = regexp.MustCompile("^/recipes/(all|edit|new|create|update|delete)?/?([a-zA-Z0-9]+)?$")
 var validApiPath = regexp.MustCompile("^/api/recipes/?([a-zA-Z0-9]+)?$")
-var webService *recipe.Service
-var apiService *recipe.Service
+var webController recipe.Controller
+var apiController recipe.Controller
 
 func makeWebHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -46,19 +46,19 @@ func recipesApiHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		if recipeID != "" {
-			apiService.View(w, r, recipeID)
+			apiController.View(w, r, recipeID)
 		} else {
-			apiService.List(w, r)
+			apiController.List(w, r)
 		}
 
 	case http.MethodPost:
-		apiService.Create(w, r)
+		apiController.Create(w, r)
 
 	case http.MethodPut:
-		apiService.Update(w, r, recipeID)
+		apiController.Update(w, r, recipeID)
 
 	case http.MethodDelete:
-		apiService.Delete(w, r, recipeID)
+		apiController.Delete(w, r, recipeID)
 
 	default:
 		http.NotFound(w, r)
@@ -85,19 +85,20 @@ GET /delete/{recipeId} to delete a recipe
 
 func main() {
 	repository := database.NewRepository(database.Connect())
-	webService = recipe.NewService(repository, html.Renderer{}, domain.HTML)
-	apiService = recipe.NewService(repository, json.Renderer{}, domain.JSON)
+	service := recipe.NewService(repository, json.Renderer{}, domain.HTML)
+	webController = recipe.NewController(service, html.Renderer{}, domain.HTML)
+	apiController = recipe.NewController(service, json.Renderer{}, domain.JSON)
 
 	http.HandleFunc("/api/recipes/", recipesApiHandler)
-	http.HandleFunc("/api/recipes/form/", apiService.New)
+	http.HandleFunc("/api/recipes/form/", apiController.New)
 
-	http.HandleFunc("/recipes/", makeWebHandler(webService.View))
-	http.HandleFunc("/recipes/all/", webService.List)
-	http.HandleFunc("/recipes/new/", webService.New)
-	http.HandleFunc("/recipes/create/", webService.Create)
-	http.HandleFunc("/recipes/edit/", makeWebHandler(webService.Edit))
-	http.HandleFunc("/recipes/update/", makeWebHandler(webService.Update))
-	http.HandleFunc("/recipes/delete/", makeWebHandler(webService.Delete))
+	http.HandleFunc("/recipes/", makeWebHandler(webController.View))
+	http.HandleFunc("/recipes/all/", webController.List)
+	http.HandleFunc("/recipes/new/", webController.New)
+	http.HandleFunc("/recipes/create/", webController.Create)
+	http.HandleFunc("/recipes/edit/", makeWebHandler(webController.Edit))
+	http.HandleFunc("/recipes/update/", makeWebHandler(webController.Update))
+	http.HandleFunc("/recipes/delete/", makeWebHandler(webController.Delete))
 
 	fmt.Println("Service is running.")
 	log.Fatal(http.ListenAndServe(":8080", nil))
