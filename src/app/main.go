@@ -18,6 +18,14 @@ var validApiPath = regexp.MustCompile("^/api/recipes/?([a-zA-Z0-9]+)?$")
 var webController recipe.Controller
 var apiController recipe.Controller
 
+var databaseConf = database.DatabaseConf{
+	Host:     "localhost",
+	Port:     5432,
+	User:     "edu",
+	Password: "1234",
+	DbName:   "recipes_db",
+}
+
 func makeWebHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validWebPath.FindStringSubmatch(r.URL.Path)
@@ -84,7 +92,7 @@ GET /delete/{recipeId} to delete a recipe
 */
 
 func main() {
-	repository := database.NewRepository(database.Connect())
+	repository := recipe.NewRepository(database.Connect(databaseConf))
 	service := recipe.NewService(repository, json.Renderer{}, domain.HTML)
 	webController = recipe.NewController(service, html.Renderer{}, domain.HTML)
 	apiController = recipe.NewController(service, json.Renderer{}, domain.JSON)

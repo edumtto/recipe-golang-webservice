@@ -1,8 +1,7 @@
-package database
+package recipe
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -25,21 +24,6 @@ func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{
 		db: db,
 	}
-}
-
-func connectWithDatabase() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	return db
 }
 
 // FetchRecipe returns the recipe with the inputed ID, if it exists.

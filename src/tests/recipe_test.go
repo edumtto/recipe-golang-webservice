@@ -46,7 +46,7 @@ func TestList(t *testing.T) {
 	repository.EXPECT().FetchRecipePreviews().Return(previews, nil)
 	renderer.EXPECT().RenderRecipeList(gomock.Eq(rr), gomock.Eq(previews))
 
-	sut.List(rr, req, "")
+	sut.List(rr, req)
 
 	// sut := recipe.NewService(domain.JSON)
 
