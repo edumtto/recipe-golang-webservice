@@ -1,23 +1,23 @@
-package json
+package presenter
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/Edu15/recipe-golang-webservice/src/domain"
+	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
 type selectableValues struct {
-	Categories   []domain.RecipeCategory
-	Difficulties []domain.RecipeDifficulty
+	Categories   []recipe.Category
+	Difficulties []recipe.Difficulty
 }
 
-// Renderer implements render.Interface to render JSON pages.
-type Renderer struct{}
+// ApiPresenter implements render.Interface to render JSON pages.
+type ApiPresenter struct{}
 
 // RenderRecipeList renders a JSON containing a list of recipes.
-func (Renderer) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]domain.RecipePreview) {
+func (ApiPresenter) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]recipe.Preview) {
 	b, err := json.Marshal(recipePreviews)
 	//err := json.ExecuteTemplate(w, listRecipeTemplate, recipePreviews)
 	fmt.Fprint(w, string(b))
@@ -28,7 +28,7 @@ func (Renderer) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]domain
 }
 
 // RenderRecipe renders a JSON containing infomation about a specific recipe.
-func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
+func (ApiPresenter) RenderRecipe(w http.ResponseWriter, recipe *recipe.Entity) {
 	b, err := json.Marshal(recipe)
 	fmt.Fprint(w, string(b))
 	if err != nil {
@@ -39,8 +39,8 @@ func (Renderer) RenderRecipe(w http.ResponseWriter, recipe *domain.Recipe) {
 
 // RenderRecipeEditor renders a JSON containing infomation about a specific recipe
 // and the available values for selectable fields.
-func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
-	b, err := json.Marshal(recipeForm)
+func (ApiPresenter) RenderRecipeEditor(w http.ResponseWriter, form *recipe.Form) {
+	b, err := json.Marshal(form)
 	fmt.Fprint(w, string(b))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,10 +49,10 @@ func (Renderer) RenderRecipeEditor(w http.ResponseWriter, recipeForm *domain.Rec
 }
 
 // RenderNewRecipeForm renders a JSON containing the available values for selectable fields.
-func (Renderer) RenderNewRecipeForm(w http.ResponseWriter, recipeForm *domain.RecipeForm) {
+func (ApiPresenter) RenderNewRecipeForm(w http.ResponseWriter, form *recipe.Form) {
 	selectableVals := selectableValues{
-		Categories:   recipeForm.Categories,
-		Difficulties: recipeForm.Difficulties,
+		Categories:   form.Categories,
+		Difficulties: form.Difficulties,
 	}
 
 	b, err := json.Marshal(selectableVals)

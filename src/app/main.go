@@ -8,9 +8,8 @@ import (
 
 	"github.com/Edu15/recipe-golang-webservice/src/database"
 	"github.com/Edu15/recipe-golang-webservice/src/domain"
-	"github.com/Edu15/recipe-golang-webservice/src/presenter/html"
-	"github.com/Edu15/recipe-golang-webservice/src/presenter/json"
 	"github.com/Edu15/recipe-golang-webservice/src/recipe"
+	"github.com/Edu15/recipe-golang-webservice/src/recipe/presenter"
 )
 
 var validWebPath = regexp.MustCompile("^/recipes/(all|edit|new|create|update|delete)?/?([a-zA-Z0-9]+)?$")
@@ -93,9 +92,9 @@ GET /delete/{recipeId} to delete a recipe
 
 func main() {
 	repository := recipe.NewRepository(database.Connect(databaseConf))
-	service := recipe.NewService(repository, json.Renderer{}, domain.HTML)
-	webController = recipe.NewController(service, html.Renderer{}, domain.HTML)
-	apiController = recipe.NewController(service, json.Renderer{}, domain.JSON)
+	service := recipe.NewService(repository)
+	webController = recipe.NewController(service, presenter.WebPresenter{}, domain.HTML)
+	apiController = recipe.NewController(service, presenter.ApiPresenter{}, domain.JSON)
 
 	http.HandleFunc("/api/recipes/", recipesApiHandler)
 	http.HandleFunc("/api/recipes/form/", apiController.New)

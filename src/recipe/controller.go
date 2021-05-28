@@ -21,12 +21,12 @@ type Controller interface {
 // Controller
 type controller struct {
 	service   Service
-	presenter domain.Render
+	presenter Presenter
 	format    domain.ResponseFormat
 }
 
 // NewController creates a new instance o Controller injecting a service.
-func NewController(service Service, presenter domain.Render, format domain.ResponseFormat) Controller {
+func NewController(service Service, presenter Presenter, format domain.ResponseFormat) Controller {
 	return &controller{
 		service:   service,
 		presenter: presenter,

@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/Edu15/recipe-golang-webservice/src/domain"
 )
 
 type Service interface {
-	List(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error)
-	View(w http.ResponseWriter, r *http.Request, id string) (*domain.Recipe, error)
-	Edit(w http.ResponseWriter, r *http.Request, id string) (*domain.RecipeForm, error)
-	New(w http.ResponseWriter, r *http.Request) (*domain.RecipeForm, error)
+	List(w http.ResponseWriter, r *http.Request) (*[]Preview, error)
+	View(w http.ResponseWriter, r *http.Request, id string) (*Entity, error)
+	Edit(w http.ResponseWriter, r *http.Request, id string) (*Form, error)
+	New(w http.ResponseWriter, r *http.Request) (*Form, error)
 	Create(w http.ResponseWriter, r *http.Request) (int, error)
 	Update(w http.ResponseWriter, r *http.Request, id string) error
 	Delete(w http.ResponseWriter, r *http.Request, id string) error
@@ -20,27 +18,23 @@ type Service interface {
 
 // RecipeService is a http hander that provides use case methods to fetch and manipulate recipes from a repository.
 type service struct {
-	repo     domain.Repository
-	renderer domain.Render
-	format   domain.ResponseFormat
+	repo Repository
 }
 
 // NewService2 creates a new instance o RecipeService injecting a repository.
-func NewService(repository domain.Repository, renderer domain.Render, format domain.ResponseFormat) Service {
+func NewService(repository Repository) Service {
 	return &service{
-		repo:     repository,
-		renderer: renderer,
-		format:   format,
+		repo: repository,
 	}
 }
 
 // List fetches a list of all recipes and present a formated result.
-func (s service) List(w http.ResponseWriter, r *http.Request) (*[]domain.RecipePreview, error) {
-	return s.repo.FetchRecipePreviews()
+func (s service) List(w http.ResponseWriter, r *http.Request) (*[]Preview, error) {
+	return s.repo.FetchPreviews()
 }
 
 // View fetches all information from recipe and present a formated result.
-func (s service) View(w http.ResponseWriter, r *http.Request, id string) (*domain.Recipe, error) {
+func (s service) View(w http.ResponseWriter, r *http.Request, id string) (*Entity, error) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
@@ -59,7 +53,7 @@ func (s service) View(w http.ResponseWriter, r *http.Request, id string) (*domai
 }
 
 // Edit fetches recipe and present a form to edit the stored recipe information.
-func (s service) Edit(w http.ResponseWriter, r *http.Request, id string) (*domain.RecipeForm, error) {
+func (s service) Edit(w http.ResponseWriter, r *http.Request, id string) (*Form, error) {
 	recipeID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
@@ -84,7 +78,7 @@ func (s service) Edit(w http.ResponseWriter, r *http.Request, id string) (*domai
 }
 
 // New renders a form to input information for a new recipe.
-func (s service) New(w http.ResponseWriter, r *http.Request) (*domain.RecipeForm, error) {
+func (s service) New(w http.ResponseWriter, r *http.Request) (*Form, error) {
 	return fetchFormFieldValues(s.repo)
 }
 
@@ -118,7 +112,7 @@ func (s service) Delete(w http.ResponseWriter, r *http.Request, id string) error
 	return s.repo.RemoveRecipe(w, r, recipeID)
 }
 
-func fetchFull(recipeID int, repo domain.Repository) (*domain.Recipe, error) {
+func fetchFull(recipeID int, repo Repository) (*Entity, error) {
 	recipe, err := repo.FetchRecipe(recipeID)
 	if err != nil {
 		return nil, err
@@ -145,8 +139,8 @@ func fetchFull(recipeID int, repo domain.Repository) (*domain.Recipe, error) {
 	return recipe, nil
 }
 
-func fetchFormFieldValues(repo domain.Repository) (*domain.RecipeForm, error) {
-	var recipeForm domain.RecipeForm
+func fetchFormFieldValues(repo Repository) (*Form, error) {
+	var recipeForm Form
 
 	categories, err := repo.FetchCategories()
 	if err != nil {

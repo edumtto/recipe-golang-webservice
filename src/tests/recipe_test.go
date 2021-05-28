@@ -1,5 +1,6 @@
 package tests
 
+/*
 import (
 	"net/http"
 	"net/http/httptest"
@@ -70,3 +71,4 @@ func TestList(t *testing.T) {
 	// 		rr.Body.String(), expected)
 	// }
 }
+*/
