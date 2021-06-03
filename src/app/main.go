@@ -93,7 +93,17 @@ GET /delete/{recipeId} to delete a recipe
 func main() {
 	repository := recipe.NewRepository(database.Connect(databaseConf))
 	service := recipe.NewService(repository)
-	webController = recipe.NewController(service, presenter.WebPresenter{}, domain.HTML)
+
+	webTemplate := domain.WebTemplate{
+		Path:         "../recipe/presenter/webtmpl/",
+		ListFilename: "recipe-list.html",
+		ViewFilename: "view-recipe.html",
+		EditFilename: "edit-recipe.html",
+		NewFilename:  "new-recipe.html",
+	}
+	webPresenter := presenter.NewWebPresenter(webTemplate)
+
+	webController = recipe.NewController(service, webPresenter, domain.HTML)
 	apiController = recipe.NewController(service, presenter.ApiPresenter{}, domain.JSON)
 
 	http.HandleFunc("/api/recipes/", recipesApiHandler)
