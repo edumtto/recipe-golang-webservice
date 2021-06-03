@@ -103,8 +103,10 @@ func main() {
 	}
 	webPresenter := presenter.NewWebPresenter(webTemplate)
 
+	apitPresenter := presenter.NewApiPresenter()
+
 	webController = recipe.NewController(service, webPresenter, domain.HTML)
-	apiController = recipe.NewController(service, presenter.ApiPresenter{}, domain.JSON)
+	apiController = recipe.NewController(service, apitPresenter, domain.JSON)
 
 	http.HandleFunc("/api/recipes/", recipesApiHandler)
 	http.HandleFunc("/api/recipes/form/", apiController.New)

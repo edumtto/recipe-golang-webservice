@@ -14,10 +14,14 @@ type selectableValues struct {
 }
 
 // ApiPresenter implements render.Interface to render JSON pages.
-type ApiPresenter struct{}
+type apiPresenter struct{}
+
+func NewApiPresenter() recipe.Presenter {
+	return &apiPresenter{}
+}
 
 // RenderRecipeList renders a JSON containing a list of recipes.
-func (ApiPresenter) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]recipe.Preview) {
+func (apiPresenter) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]recipe.Preview) {
 	b, err := json.Marshal(recipePreviews)
 	//err := json.ExecuteTemplate(w, listRecipeTemplate, recipePreviews)
 	fmt.Fprint(w, string(b))
@@ -28,7 +32,7 @@ func (ApiPresenter) RenderRecipeList(w http.ResponseWriter, recipePreviews *[]re
 }
 
 // RenderRecipe renders a JSON containing infomation about a specific recipe.
-func (ApiPresenter) RenderRecipe(w http.ResponseWriter, recipe *recipe.Entity) {
+func (apiPresenter) RenderRecipe(w http.ResponseWriter, recipe *recipe.Entity) {
 	b, err := json.Marshal(recipe)
 	fmt.Fprint(w, string(b))
 	if err != nil {
@@ -39,7 +43,7 @@ func (ApiPresenter) RenderRecipe(w http.ResponseWriter, recipe *recipe.Entity) {
 
 // RenderRecipeEditor renders a JSON containing infomation about a specific recipe
 // and the available values for selectable fields.
-func (ApiPresenter) RenderRecipeEditor(w http.ResponseWriter, form *recipe.Form) {
+func (apiPresenter) RenderRecipeEditor(w http.ResponseWriter, form *recipe.Form) {
 	b, err := json.Marshal(form)
 	fmt.Fprint(w, string(b))
 	if err != nil {
@@ -49,7 +53,7 @@ func (ApiPresenter) RenderRecipeEditor(w http.ResponseWriter, form *recipe.Form)
 }
 
 // RenderNewRecipeForm renders a JSON containing the available values for selectable fields.
-func (ApiPresenter) RenderNewRecipeForm(w http.ResponseWriter, form *recipe.Form) {
+func (apiPresenter) RenderNewRecipeForm(w http.ResponseWriter, form *recipe.Form) {
 	selectableVals := selectableValues{
 		Categories:   form.Categories,
 		Difficulties: form.Difficulties,
