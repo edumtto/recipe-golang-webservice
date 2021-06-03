@@ -95,7 +95,7 @@ func main() {
 	service := recipe.NewService(repository)
 
 	webTemplate := presenter.WebTemplate{
-		Path:         "../recipe/presenter/webtmpl/",
+		Path:         "./recipe/presenter/webtmpl/",
 		ListFilename: "recipe-list.html",
 		ViewFilename: "view-recipe.html",
 		EditFilename: "edit-recipe.html",
