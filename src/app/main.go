@@ -94,7 +94,7 @@ func main() {
 	repository := recipe.NewRepository(database.Connect(databaseConf))
 	service := recipe.NewService(repository)
 
-	webTemplate := domain.WebTemplate{
+	webTemplate := presenter.WebTemplate{
 		Path:         "../recipe/presenter/webtmpl/",
 		ListFilename: "recipe-list.html",
 		ViewFilename: "view-recipe.html",

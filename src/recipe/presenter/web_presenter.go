@@ -4,18 +4,17 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/Edu15/recipe-golang-webservice/src/domain"
 	"github.com/Edu15/recipe-golang-webservice/src/recipe"
 )
 
 // WebPresenter implements render.Interface to render HTML pages.
 type webPresenter struct {
-	template domain.WebTemplate
+	template WebTemplate
 }
 
 var templates *template.Template
 
-func NewWebPresenter(template domain.WebTemplate) recipe.Presenter {
+func NewWebPresenter(template WebTemplate) recipe.Presenter {
 	parseTemplates(template)
 
 	return &webPresenter{
@@ -23,7 +22,7 @@ func NewWebPresenter(template domain.WebTemplate) recipe.Presenter {
 	}
 }
 
-func parseTemplates(t domain.WebTemplate) {
+func parseTemplates(t WebTemplate) {
 	templates = template.Must(
 		template.ParseFiles(
 			t.Path+t.ListFilename,
